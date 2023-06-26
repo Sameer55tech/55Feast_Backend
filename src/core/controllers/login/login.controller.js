@@ -20,7 +20,10 @@ const loginController = async (request, response) => {
     if (checker) {
       const token = jwt.createToken(email, password);
       return sendResponse(
-        onSuccess(200, messageResponse.LOGIN_SUCCESSFULLY, { token, user }),
+        onSuccess(200, messageResponse.LOGIN_SUCCESSFULLY, {
+          token,
+          user,
+        }),
         response
       );
     }
