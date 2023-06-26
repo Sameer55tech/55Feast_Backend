@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
     },
     photo: {
-      type: String,
+      type: Buffer,
     },
   },
   {
