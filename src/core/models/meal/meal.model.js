@@ -7,8 +7,8 @@ const mealSchema = new mongoose.Schema(
       required: true,
     },
     bookedDates: {
-        type: [Date]
-    }
+      type: [String],
+    },
   },
   {
     timestamps: true,

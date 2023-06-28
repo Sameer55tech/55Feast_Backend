@@ -1,4 +1,4 @@
-import userModel from "../../models/user";
+import { userModel } from "../../models";
 import bcrypt from "bcryptjs";
 import {
   onError,
