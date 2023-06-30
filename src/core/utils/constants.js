@@ -12,7 +12,7 @@ const INVALID_USER = "user not valid";
 const COUNT_CANCELLED = "Count cancelled";
 const COUNT_NOT_FOUND = "count not found";
 const MEAL_NOT_BOOKED = "No meals found";
-
+const USERS_FOUND_SUCCESS = "Users found successfully";
 export default {
   EMAIL_EXIST,
   CREATED_SUCCESS,
@@ -28,4 +28,5 @@ export default {
   COUNT_CANCELLED,
   COUNT_NOT_FOUND,
   MEAL_NOT_BOOKED,
+  USERS_FOUND_SUCCESS,
 };
