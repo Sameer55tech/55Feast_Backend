@@ -10,6 +10,7 @@ router.get("/all/joined", userController.getJoinedUsers);
 router.post("/insert", userController.insertUser);
 router.patch("/update", userController.updateUserPool);
 router.delete("/delete", userController.deleteUser);
-router.get("/all/invite", userController.inviteUserByLocation);
+router.get("/all/invite", userController.getNotJoinedUsers);
+router.post("/invite", userController.inviteUser);
 
 export default router;

@@ -6,9 +6,6 @@ import {
   sendResponse,
   messageResponse,
   globalCatch,
-  sendMail,
-  successSignUpText,
-  htmlBody,
 } from "../../utils";
 import config from "../../../../config/config";
 import axios from "axios";
@@ -58,12 +55,6 @@ const signupController = async (request, response) => {
       photo,
     });
     await newUser.save();
-    sendMail(
-      messageResponse.MAIL_SUBJECT,
-      successSignUpText(firstName + " " + lastName),
-      htmlBody("signUpSuccess"),
-      email
-    );
     return sendResponse(
       onSuccess(201, messageResponse.CREATED_SUCCESS, newUser),
       response

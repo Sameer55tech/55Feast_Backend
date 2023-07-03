@@ -5,6 +5,9 @@ import {
   sendResponse,
   messageResponse,
   globalCatch,
+  sendMail,
+  successSignUpText,
+  htmlBody,
 } from "../../utils";
 import axios from "axios";
 
@@ -189,7 +192,7 @@ const deleteUser = async (request, response) => {
   }
 };
 
-const inviteUserByLocation = async (request, response) => {
+const getNotJoinedUsers = async (request, response) => {
   try {
     const { location } = request.query;
     const { email } = request.body;
@@ -214,6 +217,41 @@ const inviteUserByLocation = async (request, response) => {
   }
 };
 
+const inviteUser = async (request, response) => {
+  try {
+    const { email } = request.body;
+    const options = {
+      method: "GET",
+      url: config.USER_POOL_URL,
+      headers: { "Content-Type": "application/json" },
+      data: { email: email },
+      validateStatus: function (status) {
+        return (status >= 200 && status < 300) || status === 404;
+      },
+    };
+    const foundUser = await axios.request(options);
+    if (foundUser.status === 404) {
+      return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
+    }
+    sendMail(
+      messageResponse.MAIL_SUBJECT,
+      successSignUpText(foundUser.data.fullName),
+      htmlBody("signUpSuccess"),
+      email
+    );
+    return sendResponse(
+      onSuccess(200, messageResponse.INVITED_SUCCESS),
+      response
+    );
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
+};
+
 export default {
   getAllUsers,
   getUserByLocation,
@@ -222,5 +260,6 @@ export default {
   insertUser,
   updateUserPool,
   deleteUser,
-  inviteUserByLocation,
+  getNotJoinedUsers,
+  inviteUser
 };
