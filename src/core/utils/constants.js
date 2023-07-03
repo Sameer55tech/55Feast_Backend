@@ -16,6 +16,7 @@ const USERS_FOUND_SUCCESS = "Users found successfully";
 const USER_FOUND = "User found successfully";
 const USER_DELETED_SUCCESS = "User deleted successfully";
 const INVALID_EMAIL = "Invalid email";
+const MAIL_SUBJECT = "Welcome to 55 Feast !";
 
 export default {
   EMAIL_EXIST,
@@ -36,4 +37,5 @@ export default {
   USER_FOUND,
   USER_DELETED_SUCCESS,
   INVALID_EMAIL,
+  MAIL_SUBJECT,
 };

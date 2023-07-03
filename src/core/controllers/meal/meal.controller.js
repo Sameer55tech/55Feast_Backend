@@ -97,7 +97,7 @@ const cancelMeal = async (request, response) => {
     const mealFound = await mealModel.findOne({ email: user.email });
     if (!mealFound) {
       return sendResponse(
-        onError(400, messageResponse.MEAL_NOT_BOOKED),
+        onError(404, messageResponse.MEAL_NOT_BOOKED),
         response
       );
     }
