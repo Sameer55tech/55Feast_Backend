@@ -55,6 +55,13 @@ const signupController = async (request, response) => {
       photo,
     });
     await newUser.save();
+    const new_options = {
+      method: "POST",
+      url: `${config.USER_POOL_URL}/joined/true`,
+      headers: { "Content-Type": "application/json" },
+      data: { email },
+    };
+    const userJoined = await axios.request(new_options);
     return sendResponse(
       onSuccess(201, messageResponse.CREATED_SUCCESS, newUser),
       response
