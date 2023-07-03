@@ -15,6 +15,7 @@ const MEAL_NOT_BOOKED = "No meals found";
 const USERS_FOUND_SUCCESS = "Users found successfully";
 const USER_FOUND = "User found successfully";
 const USER_DELETED_SUCCESS = "User deleted successfully";
+const INVALID_EMAIL = "Invalid email";
 
 export default {
   EMAIL_EXIST,
@@ -34,4 +35,5 @@ export default {
   USERS_FOUND_SUCCESS,
   USER_FOUND,
   USER_DELETED_SUCCESS,
+  INVALID_EMAIL,
 };

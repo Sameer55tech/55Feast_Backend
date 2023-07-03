@@ -7,6 +7,8 @@ import {
   messageResponse,
   globalCatch,
 } from "../../utils";
+import config from "../../../../config/config";
+import axios from "axios";
 
 const signupController = async (request, response) => {
   try {
@@ -20,6 +22,19 @@ const signupController = async (request, response) => {
       location,
       photo,
     } = request.body;
+    const options = {
+      method: "GET",
+      url: config.USER_POOL_URL,
+      headers: { "Content-Type": "application/json" },
+      data: { email: email },
+      validateStatus: function (status) {
+        return (status >= 200 && status < 300) || status === 404;
+      },
+    };
+    const verifyEmail = await axios.request(options);
+    if (verifyEmail.status === 404) {
+      return sendResponse(onError(404, messageResponse.INVALID_EMAIL), response);
+    }
     const user = await userModel.findOne({ email });
     if (user) {
       return sendResponse(onError(409, messageResponse.EMAIL_EXIST), response);

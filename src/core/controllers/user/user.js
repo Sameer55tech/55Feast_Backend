@@ -52,6 +52,9 @@ const getUser = async (request, response) => {
       url: config.USER_POOL_URL,
       headers: { "Content-Type": "application/json" },
       data: { email: email },
+      validateStatus: function (status) {
+        return (status >= 200 && status < 300) || status === 404;
+      },
     };
     const foundUser = await axios.request(options);
     if (foundUser.status === 404) {

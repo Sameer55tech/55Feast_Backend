@@ -7,6 +7,8 @@ import {
   jwt,
 } from "../../utils";
 import { mealModel, userModel } from "../../models";
+import config from "../../../../config/config.js";
+import axios from "axios";
 
 const bookYourMeal = async (request, response) => {
   try {
@@ -121,7 +123,7 @@ const cancelMeal = async (request, response) => {
   }
 };
 
-const getCounts = async (request, response) => {
+const getCountsOfUser = async (request, response) => {
   try {
     const { id } = request.params;
     const user = await userModel.findOne({ _id: id });
@@ -130,10 +132,7 @@ const getCounts = async (request, response) => {
     }
     const mealFound = await mealModel.findOne({ email: user.email });
     if (!mealFound) {
-      return sendResponse(
-        onError(400, messageResponse.INVALID_USER),
-        response
-      );
+      return sendResponse(onError(400, messageResponse.INVALID_USER), response);
     }
     return sendResponse(
       onSuccess(
@@ -152,4 +151,42 @@ const getCounts = async (request, response) => {
   }
 };
 
-export default { bookYourMeal, bookMultipleMeals, cancelMeal, getCounts };
+const getAllCountOfDate = async (request, response) => {
+  try {
+    const { date } = request.body;
+    const foundUsers = await mealModel.find({ bookedDates: { $in: [date] } });
+    const users = foundUsers.map(async (element) => {
+      const options = {
+        method: "GET",
+        url: config.USER_POOL_URL,
+        headers: { "Content-Type": "application/json" },
+        data: { email: element.email },
+      };
+      const foundUser = await axios.request(options);
+      return { fullName: foundUser.data.data.fullName, email: element.email };
+    });
+    console.log(await Promise.all(await users));
+    return sendResponse(
+      onSuccess(
+        200,
+        messageResponse.DATE_FETCHED_SUCCESS,
+        await Promise.all(await users)
+      ),
+      response
+    );
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
+};
+
+export default {
+  bookYourMeal,
+  bookMultipleMeals,
+  cancelMeal,
+  getCountsOfUser,
+  getAllCountOfDate,
+};
