@@ -165,7 +165,6 @@ const getAllCountOfDate = async (request, response) => {
       const foundUser = await axios.request(options);
       return { fullName: foundUser.data.data.fullName, email: element.email };
     });
-    console.log(await Promise.all(await users));
     return sendResponse(
       onSuccess(
         200,
