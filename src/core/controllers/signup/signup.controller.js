@@ -6,6 +6,9 @@ import {
   sendResponse,
   messageResponse,
   globalCatch,
+  sendMail,
+  successSignUpText,
+  htmlBody,
 } from "../../utils";
 import config from "../../../../config/config";
 import axios from "axios";
@@ -33,7 +36,10 @@ const signupController = async (request, response) => {
     };
     const verifyEmail = await axios.request(options);
     if (verifyEmail.status === 404) {
-      return sendResponse(onError(404, messageResponse.INVALID_EMAIL), response);
+      return sendResponse(
+        onError(404, messageResponse.INVALID_EMAIL),
+        response
+      );
     }
     const user = await userModel.findOne({ email });
     if (user) {
@@ -52,6 +58,12 @@ const signupController = async (request, response) => {
       photo,
     });
     await newUser.save();
+    sendMail(
+      messageResponse.MAIL_SUBJECT,
+      successSignUpText(firstName + " " + lastName),
+      htmlBody("signUpSuccess"),
+      email
+    );
     return sendResponse(
       onSuccess(201, messageResponse.CREATED_SUCCESS, newUser),
       response

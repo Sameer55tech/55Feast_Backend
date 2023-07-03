@@ -75,10 +75,18 @@ const getUser = async (request, response) => {
 
 const getJoinedUsers = async (request, response) => {
   try {
-    const options = { method: "GET", url: `${config.USER_POOL_URL}/joined` };
+    const { location } = request.query;
+    const { email } = request.body;
+    const options = {
+      method: "GET",
+      url: `${config.USER_POOL_URL}/all/joined`,
+      params: { location },
+      headers: { "Content-Type": "application/json" },
+      data: { email },
+    };
     const users = await axios.request(options);
     return sendResponse(
-      onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users.data),
+      onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users.data.data),
       response
     );
   } catch (error) {
@@ -181,6 +189,31 @@ const deleteUser = async (request, response) => {
   }
 };
 
+const inviteUserByLocation = async (request, response) => {
+  try {
+    const { location } = request.query;
+    const { email } = request.body;
+    const options = {
+      method: "GET",
+      url: `${config.USER_POOL_URL}/all/invite`,
+      params: { location },
+      headers: { "Content-Type": "application/json" },
+      data: { email },
+    };
+    const users = await axios.request(options);
+    return sendResponse(
+      onSuccess(200, messageResponse.USER_FOUND, users.data.data),
+      response
+    );
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
+};
+
 export default {
   getAllUsers,
   getUserByLocation,
@@ -189,4 +222,5 @@ export default {
   insertUser,
   updateUserPool,
   deleteUser,
+  inviteUserByLocation,
 };
