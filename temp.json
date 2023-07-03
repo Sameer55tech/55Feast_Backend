@@ -443,14 +443,6 @@
       "__v": 0
     },
     {
-      "_id": "649eb134428cd16cac1dd626",
-      "fullName": "Anshul Vats",
-      "email": "anshul.vats@fiftyfivetech.io",
-      "location": "Jaipur",
-      "hasJoined": false,
-      "__v": 0
-    },
-    {
       "_id": "649eb134428cd16cac1dd627",
       "fullName": "Shakshi Agrawal",
       "email": "shakshi.agrawal@fiftyfivetech.io",
@@ -486,6 +478,14 @@
       "_id": "649eb134428cd16cac1dd62b",
       "fullName": "Mohammed Ishaq",
       "email": "mohammed.ishaq@fiftyfivetech.io",
+      "location": "Jaipur",
+      "hasJoined": false,
+      "__v": 0
+    },
+    {
+      "_id": "649eb134428cd16cac1dd62c",
+      "fullName": "Sameer Srivastava",
+      "email": "sameer.srivastava@fiftyfivetech.io",
       "location": "Jaipur",
       "hasJoined": false,
       "__v": 0

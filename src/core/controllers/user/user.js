@@ -196,6 +196,7 @@ const getNotJoinedUsers = async (request, response) => {
   try {
     const { location } = request.query;
     const { email } = request.body;
+    console.log("------------", email, location);
     const options = {
       method: "GET",
       url: `${config.USER_POOL_URL}/all/invite`,
@@ -261,5 +262,5 @@ export default {
   updateUserPool,
   deleteUser,
   getNotJoinedUsers,
-  inviteUser
+  inviteUser,
 };
