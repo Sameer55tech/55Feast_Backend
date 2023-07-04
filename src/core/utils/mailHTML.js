@@ -35,7 +35,9 @@ const mailHTML = (htmlResponse) => {
         border-radius: 4px;
       }
       .button:hover {
-        background-color: #0056b3;
+        background-color: #fff;
+        border-color: #ef5d36;
+        color: #ef5d36;
       }
     </style>
   </head>
@@ -50,7 +52,7 @@ const mailHTML = (htmlResponse) => {
         features and services we offer.
       </p>
       <p>Click the button below to visit our website:</p>
-      <p><a class="button" href="https://www.example.com">Visit Website</a></p>
+      <p><a class="button" href="https://five5feast-3nyz.onrender.com/">Visit Website</a></p>
       <p>We look forward to having you as our valued user.</p>
       <p>Best regards,</p>
       <p>Your Company</p>
