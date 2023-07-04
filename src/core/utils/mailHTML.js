@@ -35,7 +35,7 @@ const mailHTML = (htmlResponse) => {
       }
       .button:hover {
         background-color: #fff !important;
-        border-color: #ef5d36 !important;
+        border: 2px solid #ef5d36 !important;
         color: #ef5d36 !important;
       }
     </style>
