@@ -27,16 +27,15 @@ const mailHTML = (htmlResponse) => {
       }
       .button {
         display: inline-block;
-        text-decoration: none;
+        text-decoration: none !important;
         background-color: #ef5d36;
-        color: #fff;
-        text-decoration: none;
+        color: #fff !important;
         padding: 10px 20px;
         border-radius: 4px;
       }
       .button:hover {
         background-color: #fff;
-        border-color: #ef5d36;
+        border-color: #ef5d36 !important;
         color: #ef5d36;
       }
     </style>
