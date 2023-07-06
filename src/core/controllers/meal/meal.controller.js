@@ -182,10 +182,43 @@ const getAllCountOfDate = async (request, response) => {
   }
 };
 
+const getLastWeekCounts = async (request, response) => {
+  try {
+    // Get the current date
+    const currentDate = new Date();
+
+    // Calculate the start and end dates for the previous week (Monday to Friday)
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() - 6); // Get the previous Monday
+
+    const endOfWeek = new Date(currentDate);
+    endOfWeek.setDate(currentDate.getDate() - currentDate.getDay() - 2); // Get the previous Friday
+
+    const formattedStartOfWeek = startOfWeek.toISOString().split('T')[0];
+    const formattedEndOfWeek = endOfWeek.toISOString().split('T')[0];
+
+    // Find the entities with dates within the previous week
+    const entities = await mealModel.find({
+      dates: { $gte: formattedStartOfWeek, $lte: formattedEndOfWeek },
+    });
+    return sendResponse(
+      onSuccess(200, messageResponse.DATE_FETCHED_SUCCESS, entities),
+      response
+    );
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
+};
+
 export default {
   bookYourMeal,
   bookMultipleMeals,
   cancelMeal,
   getCountsOfUser,
   getAllCountOfDate,
+  getLastWeekCounts
 };
