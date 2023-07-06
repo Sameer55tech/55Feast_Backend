@@ -13,7 +13,10 @@ import axios from "axios";
 
 const getAllUsers = async (request, response) => {
   try {
-    const users = await axios.get(config.USER_POOL_URL + "/all");
+    const { location } = request.query;
+    const users = await axios.get(
+      `${config.USER_POOL_URL}/all?location=${location}`
+    );
     return sendResponse(
       onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users.data.data),
       response
