@@ -168,7 +168,7 @@ const updateUserPool = async (request, response) => {
 
 const deleteUser = async (request, response) => {
   try {
-    const { email } = request.body;
+    const { email } = request.query;
     const options = {
       method: "DELETE",
       url: `${config.USER_POOL_URL}/delete`,
