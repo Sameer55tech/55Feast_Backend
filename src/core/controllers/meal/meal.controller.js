@@ -182,27 +182,26 @@ const getAllCountOfDate = async (request, response) => {
   }
 };
 
-const getLastWeekCounts = async (request, response) => {
+const getLastFiveCounts = async (request, response) => {
   try {
-    // Get the current date
+    const lastFiveDay = [];
     const currentDate = new Date();
-
-    // Calculate the start and end dates for the previous week (Monday to Friday)
-    const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() - 6); // Get the previous Monday
-
-    const endOfWeek = new Date(currentDate);
-    endOfWeek.setDate(currentDate.getDate() - currentDate.getDay() - 2); // Get the previous Friday
-
-    const formattedStartOfWeek = startOfWeek.toISOString().split('T')[0];
-    const formattedEndOfWeek = endOfWeek.toISOString().split('T')[0];
-
-    // Find the entities with dates within the previous week
-    const entities = await mealModel.find({
-      dates: { $gte: formattedStartOfWeek, $lte: formattedEndOfWeek },
+    for (let i = 1; lastFiveDay.length <= 5; i++) {
+      const day = new Date(currentDate);
+      day.setDate(day.getDate() - i);
+      if (day.getDay() !== 6 && day.getDay() !== 0) {
+        lastFiveDay.push(day.toISOString().split("T")[0]);
+      }
+    }
+    const lastFiveDayCounts = lastFiveDay.map(async (element) => {
+      return await getCounts(element);
     });
     return sendResponse(
-      onSuccess(200, messageResponse.DATE_FETCHED_SUCCESS, entities),
+      onSuccess(
+        200,
+        messageResponse.COUNTS_FETCHED_SUCCESS,
+        await Promise.all(await lastFiveDayCounts)
+      ),
       response
     );
   } catch (error) {
@@ -214,11 +213,16 @@ const getLastWeekCounts = async (request, response) => {
   }
 };
 
+const getCounts = async (date) => {
+  const foundUsers = await mealModel.find({ bookedDates: { $in: [date] } });
+  return foundUsers.length;
+};
+
 export default {
   bookYourMeal,
   bookMultipleMeals,
   cancelMeal,
   getCountsOfUser,
   getAllCountOfDate,
-  getLastWeekCounts
+  getLastFiveCounts,
 };

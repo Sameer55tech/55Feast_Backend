@@ -18,6 +18,7 @@ const USER_DELETED_SUCCESS = "User deleted successfully";
 const INVALID_EMAIL = "Invalid email";
 const MAIL_SUBJECT = "Welcome to 55 Feast !";
 const INVITED_SUCCESS = "Invited successfully";
+const COUNTS_FETCHED_SUCCESS = "Counts fetched successfully";
 
 export default {
   EMAIL_EXIST,
@@ -40,4 +41,5 @@ export default {
   INVALID_EMAIL,
   MAIL_SUBJECT,
   INVITED_SUCCESS,
+  COUNTS_FETCHED_SUCCESS,
 };
