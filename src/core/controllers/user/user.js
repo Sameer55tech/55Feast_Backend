@@ -51,7 +51,6 @@ const getUserByLocation = async (request, response) => {
 
 const getUser = async (request, response) => {
   try {
-    console.log(request.body);
     const { email } = request.body;
     const options = {
       method: "GET",
@@ -199,7 +198,6 @@ const getNotJoinedUsers = async (request, response) => {
   try {
     const { location } = request.query;
     const { email } = request.body;
-    console.log("------------", email, location);
     const options = {
       method: "GET",
       url: `${config.USER_POOL_URL}/all/invite`,
