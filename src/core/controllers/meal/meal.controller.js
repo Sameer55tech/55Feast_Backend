@@ -194,7 +194,11 @@ const getLastFiveCounts = async (request, response) => {
       }
     }
     const lastFiveDayCounts = lastFiveDay.map(async (element) => {
-      return { count: await getCounts(element), date: element };
+      return {
+        count: await getCounts(element),
+        date: element,
+        day: getDayByDate(element),
+      };
     });
     return sendResponse(
       onSuccess(
@@ -211,6 +215,13 @@ const getLastFiveCounts = async (request, response) => {
       response
     );
   }
+};
+
+const getDayByDate = (dateToBeUsed) => {
+  const date = new Date(dateToBeUsed);
+  const options = { weekday: "long" };
+  const dayName = date.toLocaleDateString("en-US", options);
+  return dayName;
 };
 
 const getCounts = async (date) => {
