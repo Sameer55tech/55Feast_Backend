@@ -196,7 +196,6 @@ const getLastFiveCounts = async (request, response) => {
     const lastFiveDayCounts = lastFiveDay.map(async (element) => {
       return await getCounts(element);
     });
-    console.log(lastFiveDay);
     return sendResponse(
       onSuccess(
         200,
