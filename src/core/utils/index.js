@@ -4,6 +4,7 @@ import { globalCatch } from "./globalCatch.js";
 import jwt from "./jwt.js";
 import sendMail, { successSignUpText } from "./mail.js";
 import htmlBody from "./mailHTML.js";
+import startCronJob from "./cron.js";
 
 export {
   onError,
@@ -15,4 +16,5 @@ export {
   sendMail,
   successSignUpText,
   htmlBody,
+  startCronJob
 };

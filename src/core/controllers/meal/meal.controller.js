@@ -194,7 +194,7 @@ const getLastFiveCounts = async (request, response) => {
       }
     }
     const lastFiveDayCounts = lastFiveDay.map(async (element) => {
-      return await getCounts(element);
+      return { count: await getCounts(element), date: element };
     });
     return sendResponse(
       onSuccess(
@@ -218,6 +218,21 @@ const getCounts = async (date) => {
   return foundUsers.length;
 };
 
+const cancelAllMealsOfDate = async (date) => {
+  try {
+    const foundUsers = await mealModel.find({ bookedDates: { $in: [date] } });
+    foundUsers.map(async (element) => {
+      if (element.bookedDates.includes(date)) {
+        const index = element.bookedDates.indexOf(date);
+        element.bookedDates.splice(index, 1);
+        await element.save();
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export default {
   bookYourMeal,
   bookMultipleMeals,
@@ -225,4 +240,5 @@ export default {
   getCountsOfUser,
   getAllCountOfDate,
   getLastFiveCounts,
+  cancelAllMealsOfDate,
 };
