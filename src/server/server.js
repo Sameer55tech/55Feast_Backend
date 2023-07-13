@@ -5,7 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import unauthorized from "../core/routes/unprotected";
 import authorized from "../core/routes/protected";
-import middleware from "../core/middleware";
+import {middleware} from "../core/middleware";
 
 const app = express();
 

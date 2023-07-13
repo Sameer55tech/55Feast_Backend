@@ -186,7 +186,7 @@ const getLastFiveCounts = async (request, response) => {
   try {
     const lastFiveDay = [];
     const currentDate = new Date();
-    for (let i = 1; lastFiveDay.length <= 5; i++) {
+    for (let i = 1; lastFiveDay.length < 5; i++) {
       const day = new Date(currentDate);
       day.setDate(day.getDate() - i);
       if (day.getDay() !== 6 && day.getDay() !== 0) {
@@ -196,11 +196,12 @@ const getLastFiveCounts = async (request, response) => {
     const lastFiveDayCounts = lastFiveDay.map(async (element) => {
       return await getCounts(element);
     });
+    console.log(lastFiveDay);
     return sendResponse(
       onSuccess(
         200,
         messageResponse.COUNTS_FETCHED_SUCCESS,
-        await Promise.all(await lastFiveDayCounts)
+        await Promise.all(lastFiveDayCounts.reverse())
       ),
       response
     );

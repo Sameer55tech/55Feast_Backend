@@ -1,6 +1,6 @@
 import express from "express";
 import userController from "../../controllers/user";
-
+import { checkAdmin } from "../../middleware";
 const router = express.Router();
 
 router.get("/all", userController.getAllUsers);
@@ -11,6 +11,6 @@ router.post("/insert", userController.insertUser);
 router.patch("/update", userController.updateUserPool);
 router.delete("/delete", userController.deleteUser);
 router.post("/all/invite", userController.getNotJoinedUsers);
-router.post("/invite", userController.inviteUser);
+router.post("/invite", checkAdmin, userController.inviteUser);
 
 export default router;

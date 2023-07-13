@@ -1,1 +1,4 @@
-export { default } from "./authentication.js";
+import middleware from "./authentication.js";
+import checkAdmin from "./admin.js";
+
+export { middleware, checkAdmin };
