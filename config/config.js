@@ -4,7 +4,7 @@ dotenv.config();
 const MONGO_URI = process.env.MONGO_URI;
 const SECRET = process.env.SECRET;
 const JWT_EXPIRY = 86400;
-const USER_POOL_URL = "https://userpool.onrender.com/user";
+const USER_POOL_URL = "http://localhost:8484/user";
 const MAIL_EMAIL = process.env.MAIL_EMAIL;
 const MAIL_PASSWORD = process.env.MAIL_PASSWORD;
 const EMAIL_FROM = process.env.EMAIL_FROM;

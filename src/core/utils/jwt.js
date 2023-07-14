@@ -9,15 +9,17 @@ const createToken = (email, password) => {
   return token;
 };
 
-const jwtVerify = async (token, secret) => {
+const jwtVerify = (token, secret) => {
   try {
+    let result;
     jwt.verify(token, secret, (error, data) => {
       if (error) {
-        console.log(messageResponse.AUTH_FAIL);
+        console.log(messageResponse.TOKEN_EXPIRED);
         return;
       }
-      return data;
+      result = data;
     });
+    return result;
   } catch (error) {
     console.log(messageResponse.ERROR_FETCHING_DATA);
   }

@@ -54,9 +54,8 @@ const getUser = async (request, response) => {
     const { email } = request.body;
     const options = {
       method: "GET",
-      url: config.USER_POOL_URL,
+      url: `${config.USER_POOL_URL}?email=${email}`,
       headers: { "Content-Type": "application/json" },
-      data: { email: email },
       validateStatus: function (status) {
         return (status >= 200 && status < 300) || status === 404;
       },
@@ -81,13 +80,12 @@ const getUser = async (request, response) => {
 const getJoinedUsers = async (request, response) => {
   try {
     const { location } = request.query;
+    // exclude this email in user list
     const { email } = request.body;
     const options = {
       method: "GET",
-      url: `${config.USER_POOL_URL}/all/joined`,
-      params: { location },
+      url: `${config.USER_POOL_URL}/all/joined?location=${location}&email=${email}`,
       headers: { "Content-Type": "application/json" },
-      data: { email },
     };
     const users = await axios.request(options);
     return sendResponse(
@@ -170,9 +168,8 @@ const deleteUser = async (request, response) => {
     const { email } = request.query;
     const options = {
       method: "DELETE",
-      url: `${config.USER_POOL_URL}/delete`,
+      url: `${config.USER_POOL_URL}/delete?email=${email}`,
       headers: { "Content-Type": "application/json" },
-      data: { email },
       validateStatus: function (status) {
         return (status >= 200 && status < 300) || status === 404;
       },
@@ -200,10 +197,8 @@ const getNotJoinedUsers = async (request, response) => {
     const { email } = request.body;
     const options = {
       method: "GET",
-      url: `${config.USER_POOL_URL}/all/invite`,
-      params: { location },
+      url: `${config.USER_POOL_URL}/all/invite?location=${location}&email=${email}`,
       headers: { "Content-Type": "application/json" },
-      data: { email },
     };
     const users = await axios.request(options);
     return sendResponse(
@@ -222,16 +217,17 @@ const getNotJoinedUsers = async (request, response) => {
 const inviteUser = async (request, response) => {
   try {
     const { email } = request.body;
+    console.log("here in inviteUser", email);
     const options = {
       method: "GET",
-      url: config.USER_POOL_URL,
+      url: `${config.USER_POOL_URL}?email=${email}`,
       headers: { "Content-Type": "application/json" },
-      data: { email: email },
       validateStatus: function (status) {
         return (status >= 200 && status < 300) || status === 404;
       },
     };
     const foundUser = await axios.request(options);
+    console.log("here in inviteUser2");
     if (foundUser.status === 404) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }

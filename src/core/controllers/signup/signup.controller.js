@@ -24,9 +24,8 @@ const signupController = async (request, response) => {
     } = request.body;
     const options = {
       method: "GET",
-      url: config.USER_POOL_URL,
+      url: `${config.USER_POOL_URL}?email=${email}`,
       headers: { "Content-Type": "application/json" },
-      data: { email: email },
       validateStatus: function (status) {
         return (status >= 200 && status < 300) || status === 404;
       },

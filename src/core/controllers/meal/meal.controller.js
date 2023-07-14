@@ -4,7 +4,6 @@ import {
   sendResponse,
   messageResponse,
   globalCatch,
-  jwt,
 } from "../../utils";
 import { mealModel, userModel } from "../../models";
 import config from "../../../../config/config.js";
@@ -125,7 +124,8 @@ const cancelMeal = async (request, response) => {
 
 const getCountsOfUser = async (request, response) => {
   try {
-    const { id } = request.params;
+    console.log("here ====================");
+    const { id } = request.query;
     const user = await userModel.findOne({ _id: id });
     if (!user) {
       return sendResponse(onError(400, messageResponse.INVALID_USER), response);
@@ -158,9 +158,8 @@ const getAllCountOfDate = async (request, response) => {
     const users = foundUsers.map(async (element) => {
       const options = {
         method: "GET",
-        url: config.USER_POOL_URL,
+        url: `${config.USER_POOL_URL}?email=${element.email}`,
         headers: { "Content-Type": "application/json" },
-        data: { email: element.email },
       };
       const foundUser = await axios.request(options);
       return { fullName: foundUser.data.data.fullName, email: element.email };
