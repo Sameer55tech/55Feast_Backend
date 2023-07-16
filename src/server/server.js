@@ -5,12 +5,16 @@ import cors from "cors";
 import morgan from "morgan";
 import unauthorized from "../core/routes/unprotected";
 import authorized from "../core/routes/protected";
-import {middleware} from "../core/middleware";
+import { middleware } from "../core/middleware";
 
 const app = express();
 
 app.use(bodyParser.json({ limit: "50mb" }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
