@@ -5,6 +5,7 @@ import jwt from "./jwt.js";
 import sendMail, { successSignUpText } from "./mail.js";
 import htmlBody from "./mailHTML.js";
 // import startCronJob from "./cron.js";
+import isAdmin from "./roleManagement.js";
 
 export {
   onError,
@@ -16,5 +17,6 @@ export {
   sendMail,
   successSignUpText,
   htmlBody,
+  isAdmin
   // startCronJob
 };

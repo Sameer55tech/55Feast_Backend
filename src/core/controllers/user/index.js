@@ -1,1 +1,1 @@
-export { default } from "./user.js";
+export { default } from "./user.controller.js";

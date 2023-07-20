@@ -20,6 +20,7 @@ const MAIL_SUBJECT = "Welcome to 55 Feast !";
 const INVITED_SUCCESS = "Invited successfully";
 const COUNTS_FETCHED_SUCCESS = "Counts fetched successfully";
 const TOKEN_EXPIRED = "JWT Token expired";
+const UNAUTHARIZED = "Unauthorized";
 
 export default {
   EMAIL_EXIST,
@@ -44,4 +45,5 @@ export default {
   INVITED_SUCCESS,
   COUNTS_FETCHED_SUCCESS,
   TOKEN_EXPIRED,
+  UNAUTHARIZED
 };

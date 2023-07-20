@@ -8,7 +8,7 @@ import {
   sendMail,
   successSignUpText,
   htmlBody,
-} from "../../utils";
+} from "../../utils/index.js";
 import axios from "axios";
 
 const getAllUsers = async (request, response) => {

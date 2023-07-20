@@ -1,15 +1,16 @@
 import express from "express";
 import userController from "../../controllers/user";
+import { isAdmin } from "../../utils";
 const router = express.Router();
 
-router.get("/all", userController.getAllUsers);
-router.get("/location/all", userController.getUserByLocation);
-router.get("/", userController.getUser);
+router.get("/all", isAdmin(userController.getAllUsers));
+router.get("/location/all", isAdmin(userController.getUserByLocation));
+router.get("/", isAdmin(userController.getUser));
 router.post("/all/joined", userController.getJoinedUsers);
-router.post("/insert", userController.insertUser);
-router.patch("/update", userController.updateUserPool);
-router.delete("/delete", userController.deleteUser);
-router.post("/all/invite", userController.getNotJoinedUsers);
-router.post("/invite", userController.inviteUser);
+router.post("/insert", isAdmin(userController.insertUser));
+router.patch("/update", isAdmin(userController.updateUserPool));
+router.delete("/delete", isAdmin(userController.deleteUser));
+router.post("/all/invite", isAdmin(userController.getNotJoinedUsers));
+router.post("/invite", isAdmin(userController.inviteUser));
 
 export default router;

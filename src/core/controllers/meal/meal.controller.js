@@ -20,6 +20,9 @@ const bookYourMeal = async (request, response) => {
           response
         );
       }
+      if (bookedMeal.bookedDates.length > 5) {
+        bookedMeal.bookedDates.shift();
+      }
       bookedMeal.bookedDates.push(date);
       await bookedMeal.save();
       return sendResponse(
@@ -124,7 +127,6 @@ const cancelMeal = async (request, response) => {
 
 const getCountsOfUser = async (request, response) => {
   try {
-    console.log("here ====================");
     const { id } = request.query;
     const user = await userModel.findOne({ _id: id });
     if (!user) {
