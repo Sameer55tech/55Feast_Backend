@@ -21,6 +21,12 @@ const INVITED_SUCCESS = "Invited successfully";
 const COUNTS_FETCHED_SUCCESS = "Counts fetched successfully";
 const TOKEN_EXPIRED = "JWT Token expired";
 const UNAUTHARIZED = "Unauthorized";
+const MENU_ITEM_ADDED = "Menu item has been added";
+const MENU_ITEM_UPDATED = "Menu item has been updated";
+const ITEM_NOT_FOUND = "Menu item not found";
+const MENU_ITEM_DELETED_SUCCESS =
+  "Menu item has been deleted successfully deleted";
+const MENU_FETCHED = "Menu items fetched successfully";
 
 export default {
   EMAIL_EXIST,
@@ -45,5 +51,10 @@ export default {
   INVITED_SUCCESS,
   COUNTS_FETCHED_SUCCESS,
   TOKEN_EXPIRED,
-  UNAUTHARIZED
+  UNAUTHARIZED,
+  MENU_ITEM_ADDED,
+  MENU_ITEM_UPDATED,
+  ITEM_NOT_FOUND,
+  MENU_ITEM_DELETED_SUCCESS,
+  MENU_FETCHED,
 };
