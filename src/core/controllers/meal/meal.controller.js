@@ -6,7 +6,7 @@ import {
   globalCatch,
 } from "../../utils";
 import { mealModel, userModel } from "../../models";
-import config from "../../../../config/config.js";
+import config from "../../../../config";
 import axios from "axios";
 
 const bookYourMeal = async (request, response) => {

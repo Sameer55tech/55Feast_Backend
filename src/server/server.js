@@ -1,12 +1,12 @@
 import express from "express";
-import db from "../core/database/db.js";
+import db from "../core/database";
 import bodyParser from "body-parser";
 import cors from "cors";
 import morgan from "morgan";
 import unauthorized from "../core/routes/unprotected";
 import authorized from "../core/routes/protected";
-import { middleware } from "../core/middleware";
-import config from "../../config/config.js";
+import middleware from "../core/middleware";
+import config from "../../config";
 
 const app = express();
 

@@ -1,3 +1,1 @@
-import middleware from "./authentication.js";
-
-export { middleware };
+export { default } from "./authentication.js";

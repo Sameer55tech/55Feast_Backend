@@ -7,7 +7,7 @@ import {
   messageResponse,
   globalCatch,
 } from "../../utils";
-import config from "../../../../config/config";
+import config from "../../../../config";
 import axios from "axios";
 
 const signupController = async (request, response) => {

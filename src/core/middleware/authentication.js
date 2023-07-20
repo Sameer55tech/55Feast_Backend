@@ -1,4 +1,4 @@
-import config from "../../../config/config";
+import config from "../../../config";
 import { jwt, messageResponse, onError, sendResponse } from "../utils";
 
 const middleware = (app) => {

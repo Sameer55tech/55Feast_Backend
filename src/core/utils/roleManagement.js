@@ -1,5 +1,5 @@
 import messageResponse from "./constants";
-import config from "../../../config/config";
+import config from "../../../config";
 import { userModel } from "../models";
 import jwt from "./jwt";
 import { onError, sendResponse } from "./response";
