@@ -6,6 +6,7 @@ import morgan from "morgan";
 import unauthorized from "../core/routes/unprotected";
 import authorized from "../core/routes/protected";
 import { middleware } from "../core/middleware";
+import config from "../../config/config.js";
 
 const app = express();
 
@@ -22,6 +23,6 @@ unauthorized(app);
 middleware(app);
 authorized(app);
 
-app.listen(8080, "0.0.0.0", () => {
-  console.log(`server running on port 8080`);
+app.listen(config.PORT, "0.0.0.0", () => {
+  console.log(`server running on port ${config.PORT}`);
 });

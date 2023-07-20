@@ -11,6 +11,7 @@ const EMAIL_FROM = process.env.EMAIL_FROM;
 const MAIL_HOST = process.env.MAIL_HOST;
 const MAIL_PORT = process.env.MAIL_PORT;
 const MAIL_SERVICE = process.env.MAIL_SERVICE;
+const PORT = process.env.PORT;
 
 export default {
   MONGO_URI,
@@ -23,4 +24,5 @@ export default {
   MAIL_HOST,
   MAIL_PORT,
   MAIL_SERVICE,
+  PORT
 };
