@@ -22,6 +22,6 @@ unauthorized(app);
 middleware(app);
 authorized(app);
 
-app.listen(8080, () => {
+app.listen(8080, "0.0.0.0", () => {
   console.log(`server running on port 8080`);
 });
