@@ -39,6 +39,32 @@ const bookYourMeal = async (request, response) => {
       onSuccess(201, messageResponse.MEAL_BOOKED, newMeal),
       response
     );
+
+    // const newDateObj = new Date(date);
+    // const newMonth = newDateObj.getMonth();
+    // const newYear = newDateObj.getFullYear();
+    // // Find the existing meal document for the given email
+    // let meal = await mealModel.findOne({ email });
+    // if (!meal) {
+    //   // If no existing meal found, create a new one
+    //   meal = new mealModel({ email, bookedDates: [] });
+    // }
+    // // Filter out the dates from the bookedDates array that belong to the same month and year as the newDate
+    // meal.bookedDates = meal.bookedDates.filter((dateStr) => {
+    //   const dateObj = new Date(dateStr);
+    //   return (
+    //     dateObj.getMonth() == newMonth || dateObj.getFullYear() == newYear
+    //   );
+    // });
+    // // Add the newDate to the bookedDates array
+    // meal.bookedDates.push(date);
+    // // Save the updated meal document
+    // await meal.save();
+    // // return meal;
+    // return sendResponse(
+    //   onSuccess(201, messageResponse.MEAL_BOOKED, meal),
+    //   response
+    // );
   } catch (error) {
     globalCatch(request, error);
     return sendResponse(
@@ -245,6 +271,39 @@ const cancelAllMealsOfDate = async (date) => {
   }
 };
 
+const getTodayNotCountedUsers = async (request, response) => {
+  try {
+    const today = new Date();
+    const day = new Date(today);
+    const date = day.toISOString().split("T")[0];
+    console.log(date, "--------------+++");
+    const foundUsers = await mealModel.find({ bookedDates: { $nin: [date] } });
+    const users = foundUsers.map(async (element) => {
+      const options = {
+        method: "GET",
+        url: `${config.USER_POOL_URL}?email=${element.email}`,
+        headers: { "Content-Type": "application/json" },
+      };
+      const foundUser = await axios.request(options);
+      return { fullName: foundUser.data.data.fullName, email: element.email };
+    });
+    return sendResponse(
+      onSuccess(
+        200,
+        messageResponse.DATE_FETCHED_SUCCESS,
+        await Promise.all(await users)
+      ),
+      response
+    );
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
+};
+
 export default {
   bookYourMeal,
   bookMultipleMeals,
@@ -253,4 +312,5 @@ export default {
   getAllCountOfDate,
   getLastFiveCounts,
   cancelAllMealsOfDate,
+  getTodayNotCountedUsers,
 };
