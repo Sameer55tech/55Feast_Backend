@@ -12,59 +12,29 @@ import axios from "axios";
 const bookYourMeal = async (request, response) => {
   try {
     const { email, date } = request.body;
-    const bookedMeal = await mealModel.findOne({ email });
-    if (bookedMeal) {
-      if (bookedMeal.bookedDates.includes(date)) {
+    let meal = await mealModel.findOne({ email });
+    if (!meal) {
+      meal = new mealModel({ email, bookedDates: [date] });
+    } else {
+      if (meal.bookedDates.includes(date)) {
         return sendResponse(
           onError(409, messageResponse.MEAL_ALREADY_BOOKED),
           response
         );
       }
-      if (bookedMeal.bookedDates.length > 5) {
-        bookedMeal.bookedDates.shift();
+      const currentMonth = new Date(date).getMonth() + 1;
+      const lastDateMonth =
+        new Date(meal.bookedDates[meal.bookedDates.length - 1]).getMonth() + 1;
+      if (currentMonth !== lastDateMonth) {
+        meal.bookedDates = [];
       }
-      bookedMeal.bookedDates.push(date);
-      await bookedMeal.save();
-      return sendResponse(
-        onSuccess(201, messageResponse.MEAL_BOOKED, bookedMeal),
-        response
-      );
+      meal.bookedDates.push(date);
     }
-    const newMeal = new mealModel({
-      email,
-      bookedDates: [date],
-    });
-    await newMeal.save();
+    await meal.save();
     return sendResponse(
-      onSuccess(201, messageResponse.MEAL_BOOKED, newMeal),
+      onSuccess(201, messageResponse.MEAL_BOOKED, meal),
       response
     );
-
-    // const newDateObj = new Date(date);
-    // const newMonth = newDateObj.getMonth();
-    // const newYear = newDateObj.getFullYear();
-    // // Find the existing meal document for the given email
-    // let meal = await mealModel.findOne({ email });
-    // if (!meal) {
-    //   // If no existing meal found, create a new one
-    //   meal = new mealModel({ email, bookedDates: [] });
-    // }
-    // // Filter out the dates from the bookedDates array that belong to the same month and year as the newDate
-    // meal.bookedDates = meal.bookedDates.filter((dateStr) => {
-    //   const dateObj = new Date(dateStr);
-    //   return (
-    //     dateObj.getMonth() == newMonth || dateObj.getFullYear() == newYear
-    //   );
-    // });
-    // // Add the newDate to the bookedDates array
-    // meal.bookedDates.push(date);
-    // // Save the updated meal document
-    // await meal.save();
-    // // return meal;
-    // return sendResponse(
-    //   onSuccess(201, messageResponse.MEAL_BOOKED, meal),
-    //   response
-    // );
   } catch (error) {
     globalCatch(request, error);
     return sendResponse(
@@ -187,7 +157,10 @@ const getAllCountOfDate = async (request, response) => {
       const options = {
         method: "GET",
         url: `${config.USER_POOL_URL}?email=${element.email}`,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       };
       const foundUser = await axios.request(options);
       return { fullName: foundUser.data.data.fullName, email: element.email };

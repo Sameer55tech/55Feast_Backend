@@ -27,6 +27,7 @@ const ITEM_NOT_FOUND = "Menu item not found";
 const MENU_ITEM_DELETED_SUCCESS =
   "Menu item has been deleted successfully deleted";
 const MENU_FETCHED = "Menu items fetched successfully";
+const INCORRECT_DATE = "Invalid date entered";
 
 export default {
   EMAIL_EXIST,
@@ -57,4 +58,5 @@ export default {
   ITEM_NOT_FOUND,
   MENU_ITEM_DELETED_SUCCESS,
   MENU_FETCHED,
+  INCORRECT_DATE,
 };
