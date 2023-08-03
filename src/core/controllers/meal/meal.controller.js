@@ -159,9 +159,9 @@ const getAllCountOfDate = async (request, response) => {
         url: `${config.USER_POOL_URL}?email=${element.email}`,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
       };
+      console.log(options.url);
       const foundUser = await axios.request(options);
       return { fullName: foundUser.data.data.fullName, email: element.email };
     });
