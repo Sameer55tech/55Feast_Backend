@@ -249,7 +249,6 @@ const getTodayNotCountedUsers = async (request, response) => {
     const today = new Date();
     const day = new Date(today);
     const date = day.toISOString().split("T")[0];
-    console.log(date, "--------------+++");
     const foundUsers = await mealModel.find({ bookedDates: { $nin: [date] } });
     const users = foundUsers.map(async (element) => {
       const options = {

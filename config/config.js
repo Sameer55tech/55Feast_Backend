@@ -4,7 +4,7 @@ dotenv.config();
 const MONGO_URI = process.env.MONGO_URI;
 const SECRET = process.env.SECRET;
 const JWT_EXPIRY = 2592000;
-const USER_POOL_URL = "https://nutty-gold-bat.cyclic.app/user";
+const USER_POOL_URL = "https://userpool.onrender.com";
 const MAIL_EMAIL = process.env.MAIL_EMAIL;
 const MAIL_PASSWORD = process.env.MAIL_PASSWORD;
 const EMAIL_FROM = process.env.EMAIL_FROM;
