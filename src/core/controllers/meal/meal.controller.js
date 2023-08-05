@@ -123,8 +123,8 @@ const cancelMeal = async (request, response) => {
 
 const getCountsOfUser = async (request, response) => {
   try {
-    const { id } = request.query;
-    const user = await userModel.findOne({ _id: id });
+    const { email } = request.query;
+    const user = await userModel.findOne({ email });
     if (!user) {
       return sendResponse(onError(400, messageResponse.INVALID_USER), response);
     }
@@ -161,7 +161,6 @@ const getAllCountOfDate = async (request, response) => {
           "Content-Type": "application/json",
         },
       };
-      console.log(options.url);
       const foundUser = await axios.request(options);
       return { fullName: foundUser.data.data.fullName, email: element.email };
     });
