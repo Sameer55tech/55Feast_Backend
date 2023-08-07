@@ -87,8 +87,8 @@ const bookMultipleMeals = async (request, response) => {
 
 const cancelMeal = async (request, response) => {
   try {
-    const { userId, date } = request.body;
-    const user = await userModel.findOne({ _id: userId });
+    const { email, date } = request.body;
+    const user = await userModel.findOne({ email });
     if (!user) {
       return sendResponse(onError(400, messageResponse.INVALID_USER), response);
     }
