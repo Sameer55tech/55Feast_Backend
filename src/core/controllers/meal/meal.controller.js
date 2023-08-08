@@ -292,12 +292,15 @@ const getMonthlyCounts = async (request, response) => {
       lastMonth.getMonth() + 1,
       0
     );
-
     const datesOfLastMonth = [];
     for (let i = lastMonth.getDate(); i <= lastMonthEndDate.getDate(); i++) {
-      datesOfLastMonth.push(
-        `${lastMonth.getFullYear()}-${lastMonth.getMonth() + 1}-${i}`
-      );
+      const year = lastMonth.getFullYear();
+      const month =
+        lastMonth.getMonth() + 1 < 9
+          ? `0${lastMonth.getMonth() + 1}`
+          : lastMonth.getMonth() + 1;
+      const day = i < 9 ? `0${i}` : i;
+      datesOfLastMonth.push(`${year}-${month}-${day}`);
     }
     const lastMonthCounts = datesOfLastMonth.map(async (element) => {
       return {
@@ -310,7 +313,7 @@ const getMonthlyCounts = async (request, response) => {
       onSuccess(
         200,
         messageResponse.COUNTS_FETCHED_SUCCESS,
-        await Promise.all(lastMonthCounts.reverse())
+        await Promise.all(lastMonthCounts)
       ),
       response
     );
