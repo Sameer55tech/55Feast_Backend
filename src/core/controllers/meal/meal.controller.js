@@ -23,10 +23,16 @@ const bookYourMeal = async (request, response) => {
         );
       }
       const currentMonth = new Date(date).getMonth() + 1;
-      const lastDateMonth =
-        new Date(meal.bookedDates[meal.bookedDates.length - 1]).getMonth() + 1;
-      if (currentMonth !== lastDateMonth) {
-        meal.bookedDates = [];
+      const firstDateMonth = new Date(meal.bookedDates[0]).getMonth() + 1;
+      if (
+        currentMonth - firstDateMonth >= 2 ||
+        currentMonth - firstDateMonth == -10
+      ) {
+        meal.bookedDates = meal.bookedDates.filter((date) => {
+          const currDate = new Date(date);
+          const currMonth = currDate.getMonth() + 1;
+          return currMonth != firstDateMonth;
+        });
       }
       meal.bookedDates.push(date);
     }
@@ -47,33 +53,35 @@ const bookYourMeal = async (request, response) => {
 const bookMultipleMeals = async (request, response) => {
   try {
     const { email, bookedDates } = request.body;
-    const user = await userModel.findOne({ email });
-    if (!user) {
-      return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
-    }
-    if (!bookedDates.length) {
-      return sendResponse(
-        onError(400, messageResponse.BOOK_ATLEAST_ONE),
-        response
-      );
-    }
-    const userFromMeals = await mealModel.findOne({ email });
-    if (!userFromMeals) {
-      const newUser = new mealModel({ email, bookedDates });
-      await newUser.save();
-      return sendResponse(
-        onSuccess(201, messageResponse.MEAL_BOOKED, newUser),
-        response
-      );
-    }
-    bookedDates.map(async (element) => {
-      if (!userFromMeals.bookedDates.includes(element)) {
-        userFromMeals.bookedDates.push(element);
+    let meal = await mealModel.findOne({ email });
+    if (!meal) {
+      meal = new mealModel({ email, bookedDates });
+    } else {
+      for (const date of bookedDates) {
+        if (meal.bookedDates.includes(date)) {
+          return sendResponse(
+            onError(409, messageResponse.MEAL_ALREADY_BOOKED),
+            response
+          );
+        }
       }
-    });
-    await userFromMeals.save();
+      const currentMonth = new Date(bookedDates[0]).getMonth() + 1;
+      const firstDateMonth = new Date(meal.bookedDates[0]).getMonth() + 1;
+      if (
+        currentMonth - firstDateMonth >= 2 ||
+        currentMonth - firstDateMonth == -10
+      ) {
+        meal.bookedDates = meal.bookedDates.filter((date) => {
+          const currDate = new Date(date);
+          const currMonth = currDate.getMonth() + 1;
+          return currMonth != firstDateMonth;
+        });
+      }
+      meal.bookedDates = meal.bookedDates.concat(dates);
+    }
+    await meal.save();
     return sendResponse(
-      onSuccess(201, messageResponse.MEAL_BOOKED, userFromMeals),
+      onSuccess(201, messageResponse.MEAL_BOOKED, meal),
       response
     );
   } catch (error) {
@@ -275,6 +283,40 @@ const getTodayNotCountedUsers = async (request, response) => {
   }
 };
 
+const getMonthlyCounts = async (request, response) => {
+  try {
+    const today = new Date();
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const lastMonthEndDate = new Date(
+      lastMonth.getFullYear(),
+      lastMonth.getMonth() + 1,
+      0
+    );
+
+    const datesOfLastMonth = [];
+    for (let i = lastMonth.getDate(); i <= lastMonthEndDate.getDate(); i++) {
+      datesOfLastMonth.push(
+        `${lastMonth.getFullYear()}-${lastMonth.getMonth() + 1}-${i}`
+      );
+    }
+    const lastMonthCounts = datesOfLastMonth.map(async (element) => {
+      return {
+        count: await getCounts(element),
+        date: element,
+        day: getDayByDate(element),
+      };
+    });
+    return sendResponse(
+      onSuccess(
+        200,
+        messageResponse.COUNTS_FETCHED_SUCCESS,
+        await Promise.all(lastMonthCounts.reverse())
+      ),
+      response
+    );
+  } catch (error) {}
+};
+
 export default {
   bookYourMeal,
   bookMultipleMeals,
@@ -284,4 +326,5 @@ export default {
   getLastFiveCounts,
   cancelAllMealsOfDate,
   getTodayNotCountedUsers,
+  getMonthlyCounts,
 };
