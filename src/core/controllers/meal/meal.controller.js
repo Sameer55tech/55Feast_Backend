@@ -77,7 +77,7 @@ const bookMultipleMeals = async (request, response) => {
           return currMonth != firstDateMonth;
         });
       }
-      meal.bookedDates = meal.bookedDates.concat(dates);
+      meal.bookedDates = meal.bookedDates.concat(bookedDates);
     }
     await meal.save();
     return sendResponse(
