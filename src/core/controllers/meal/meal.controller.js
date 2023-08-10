@@ -12,7 +12,7 @@ import axios from "axios";
 const bookYourMeal = async (request, response) => {
   try {
     const { email, date } = request.body;
-    let meal = await mealModel.findOne({ email });
+    let meal = await mealModel.mealModel.findOne({ email });
     if (!meal) {
       meal = new mealModel({ email, bookedDates: [date] });
     } else {
@@ -53,7 +53,7 @@ const bookYourMeal = async (request, response) => {
 const bookMultipleMeals = async (request, response) => {
   try {
     const { email, bookedDates } = request.body;
-    let meal = await mealModel.findOne({ email });
+    let meal = await mealModel.mealModel.findOne({ email });
     if (!meal) {
       meal = new mealModel({ email, bookedDates });
     } else {
@@ -100,7 +100,7 @@ const cancelMeal = async (request, response) => {
     if (!user) {
       return sendResponse(onError(400, messageResponse.INVALID_USER), response);
     }
-    const mealFound = await mealModel.findOne({ email: user.email });
+    const mealFound = await mealModel.mealModel.findOne({ email: user.email });
     if (!mealFound) {
       return sendResponse(
         onError(404, messageResponse.MEAL_NOT_BOOKED),
@@ -136,7 +136,7 @@ const getCountsOfUser = async (request, response) => {
     if (!user) {
       return sendResponse(onError(400, messageResponse.INVALID_USER), response);
     }
-    const mealFound = await mealModel.findOne({ email: user.email });
+    const mealFound = await mealModel.mealModel.findOne({ email: user.email });
     if (!mealFound) {
       return sendResponse(onError(400, messageResponse.INVALID_USER), response);
     }
@@ -160,7 +160,9 @@ const getCountsOfUser = async (request, response) => {
 const getAllCountOfDate = async (request, response) => {
   try {
     const { date } = request.body;
-    const foundUsers = await mealModel.find({ bookedDates: { $in: [date] } });
+    const foundUsers = await mealModel.mealModel.find({
+      bookedDates: { $in: [date] },
+    });
     const users = foundUsers.map(async (element) => {
       const options = {
         method: "GET",
@@ -232,13 +234,17 @@ const getDayByDate = (dateToBeUsed) => {
 };
 
 const getCounts = async (date) => {
-  const foundUsers = await mealModel.find({ bookedDates: { $in: [date] } });
+  const foundUsers = await mealModel.mealModel.find({
+    bookedDates: { $in: [date] },
+  });
   return foundUsers.length;
 };
 
 const cancelAllMealsOfDate = async (date) => {
   try {
-    const foundUsers = await mealModel.find({ bookedDates: { $in: [date] } });
+    const foundUsers = await mealModel.mealModel.find({
+      bookedDates: { $in: [date] },
+    });
     foundUsers.map(async (element) => {
       if (element.bookedDates.includes(date)) {
         const index = element.bookedDates.indexOf(date);
@@ -256,7 +262,9 @@ const getTodayNotCountedUsers = async (request, response) => {
     const today = new Date();
     const day = new Date(today);
     const date = day.toISOString().split("T")[0];
-    const foundUsers = await mealModel.find({ bookedDates: { $nin: [date] } });
+    const foundUsers = await mealModel.mealModel.find({
+      bookedDates: { $nin: [date] },
+    });
     const users = foundUsers.map(async (element) => {
       const options = {
         method: "GET",
@@ -293,6 +301,8 @@ const getMonthlyCounts = async (request, response) => {
       0
     );
     const datesOfLastMonth = [];
+    console.log(lastMonth.getDate());
+    console.log(lastMonthEndDate.getDate());
     for (let i = lastMonth.getDate(); i <= lastMonthEndDate.getDate(); i++) {
       const year = lastMonth.getFullYear();
       const month =
@@ -300,14 +310,21 @@ const getMonthlyCounts = async (request, response) => {
           ? `0${lastMonth.getMonth() + 1}`
           : lastMonth.getMonth() + 1;
       const day = i < 9 ? `0${i}` : i;
-      datesOfLastMonth.push(`${year}-${month}-${day}`);
+      const formattedDate = `${year}-${month}-${day}`;
+      const weekDay = new Date(formattedDate).getDay();
+      if (weekDay !== 6 && weekDay !== 0) {
+        datesOfLastMonth.push(`${year}-${month}-${day}`);
+      }
     }
     const lastMonthCounts = datesOfLastMonth.map(async (element) => {
-      return {
+      const result = {
         count: await getCounts(element),
         date: element,
         day: getDayByDate(element),
       };
+      const newMonthlyMeal = new mealModel.monthlyMealModel(result);
+      await newMonthlyMeal.save();
+      return result;
     });
     return sendResponse(
       onSuccess(
