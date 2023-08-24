@@ -14,7 +14,8 @@ const bookYourMeal = async (request, response) => {
     const { email, date } = request.body;
     let meal = await mealModel.mealModel.findOne({ email });
     if (!meal) {
-      meal = new mealModel({ email, bookedDates: [date] });
+      console.log("here");
+      meal = new mealModel.mealModel({ email, bookedDates: [date] });
     } else {
       if (meal.bookedDates.includes(date)) {
         return sendResponse(
@@ -55,7 +56,7 @@ const bookMultipleMeals = async (request, response) => {
     const { email, bookedDates } = request.body;
     let meal = await mealModel.mealModel.findOne({ email });
     if (!meal) {
-      meal = new mealModel({ email, bookedDates });
+      meal = new mealModel.mealModel({ email, bookedDates });
     } else {
       for (const date of bookedDates) {
         if (meal.bookedDates.includes(date)) {
