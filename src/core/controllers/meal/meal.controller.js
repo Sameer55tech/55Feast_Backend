@@ -161,7 +161,7 @@ const getCountsOfUser = async (request, response) => {
 const getAllCountOfDate = async (request, response) => {
   try {
     const { date } = request.body;
-    const {location} = request.query;
+    const { location } = request.query;
     const foundUsers = await mealModel.mealModel.find({
       bookedDates: { $in: [date] },
     });
@@ -174,16 +174,16 @@ const getAllCountOfDate = async (request, response) => {
         },
       };
       const foundUser = await axios.request(options);
-      return { fullName: foundUser.data.data.fullName, email: element.email, location: foundUser.data.data.location };
+      return {
+        fullName: foundUser.data.data.fullName,
+        email: element.email,
+        location: foundUser.data.data.location,
+      };
     });
     const result = await Promise.all(await users);
     const count = result.filter((user) => user.location === `${location}`);
     return sendResponse(
-      onSuccess(
-        200,
-        messageResponse.DATE_FETCHED_SUCCESS,
-        count
-      ),
+      onSuccess(200, messageResponse.DATE_FETCHED_SUCCESS, count),
       response
     );
   } catch (error) {
@@ -197,6 +197,7 @@ const getAllCountOfDate = async (request, response) => {
 
 const getLastFiveCounts = async (request, response) => {
   try {
+    const { location } = request.query;
     const lastFiveDay = [];
     const currentDate = new Date();
     for (let i = 1; lastFiveDay.length < 5; i++) {
@@ -208,7 +209,7 @@ const getLastFiveCounts = async (request, response) => {
     }
     const lastFiveDayCounts = lastFiveDay.map(async (element) => {
       return {
-        count: await getCounts(element),
+        count: await getCounts(element, location),
         date: element,
         day: getDayByDate(element),
       };
@@ -237,11 +238,24 @@ const getDayByDate = (dateToBeUsed) => {
   return dayName;
 };
 
-const getCounts = async (date) => {
+const getCounts = async (date, location) => {
   const foundUsers = await mealModel.mealModel.find({
     bookedDates: { $in: [date] },
   });
-  return foundUsers.length;
+  const users = foundUsers.map(async (element) => {
+    const options = {
+      method: "GET",
+      url: `${config.USER_POOL_URL}?email=${element.email}`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const foundUser = await axios.request(options);
+    return { email: element.email, location: foundUser.data.data.location };
+  });
+  const result = await Promise.all(await users);
+  const count = result.filter((user) => user.location === `${location}`);
+  return count.length;
 };
 
 const cancelAllMealsOfDate = async (date) => {
@@ -297,6 +311,7 @@ const getTodayNotCountedUsers = async (request, response) => {
 
 const getMonthlyCounts = async (request, response) => {
   try {
+    const {location} = request.query;
     const today = new Date();
     const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const lastMonthEndDate = new Date(
@@ -305,8 +320,6 @@ const getMonthlyCounts = async (request, response) => {
       0
     );
     const datesOfLastMonth = [];
-    console.log(lastMonth.getDate());
-    console.log(lastMonthEndDate.getDate());
     for (let i = lastMonth.getDate(); i <= lastMonthEndDate.getDate(); i++) {
       const year = lastMonth.getFullYear();
       const month =
@@ -322,7 +335,7 @@ const getMonthlyCounts = async (request, response) => {
     }
     const lastMonthCounts = datesOfLastMonth.map(async (element) => {
       const result = {
-        count: await getCounts(element),
+        count: await getCounts(element, location),
         date: element,
         day: getDayByDate(element),
       };
