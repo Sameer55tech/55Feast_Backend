@@ -161,6 +161,7 @@ const getCountsOfUser = async (request, response) => {
 const getAllCountOfDate = async (request, response) => {
   try {
     const { date } = request.body;
+    const {location} = request.query;
     const foundUsers = await mealModel.mealModel.find({
       bookedDates: { $in: [date] },
     });
@@ -173,13 +174,15 @@ const getAllCountOfDate = async (request, response) => {
         },
       };
       const foundUser = await axios.request(options);
-      return { fullName: foundUser.data.data.fullName, email: element.email };
+      return { fullName: foundUser.data.data.fullName, email: element.email, location: foundUser.data.data.location };
     });
+    const result = await Promise.all(await users);
+    const count = result.filter((user) => user.location === `${location}`);
     return sendResponse(
       onSuccess(
         200,
         messageResponse.DATE_FETCHED_SUCCESS,
-        await Promise.all(await users)
+        count
       ),
       response
     );
