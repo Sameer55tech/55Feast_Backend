@@ -28,6 +28,7 @@ const MENU_ITEM_DELETED_SUCCESS =
   "Menu item has been deleted successfully deleted";
 const MENU_FETCHED = "Menu items fetched successfully";
 const INCORRECT_DATE = "Invalid date entered";
+const COUNTS_DELETED_SUCCESS = "All counts cancelled successfully";
 
 export default {
   EMAIL_EXIST,
@@ -59,4 +60,5 @@ export default {
   MENU_ITEM_DELETED_SUCCESS,
   MENU_FETCHED,
   INCORRECT_DATE,
+  COUNTS_DELETED_SUCCESS
 };

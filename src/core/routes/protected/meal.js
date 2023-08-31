@@ -15,5 +15,6 @@ router.get(
   "/today/not_counted",
   isAdmin(mealController.getTodayNotCountedUsers)
 );
+router.delete("/cancel", isAdmin(mealController.cancelAllMealsOfDate));
 
 export default router;

@@ -258,8 +258,9 @@ const getCounts = async (date, location) => {
   return count.length;
 };
 
-const cancelAllMealsOfDate = async (date) => {
+const cancelAllMealsOfDate = async (request, response) => {
   try {
+    const { date } = request.query;
     const foundUsers = await mealModel.mealModel.find({
       bookedDates: { $in: [date] },
     });
@@ -270,8 +271,16 @@ const cancelAllMealsOfDate = async (date) => {
         await element.save();
       }
     });
+    return sendResponse(
+      onSuccess(200, messageResponse.COUNTS_DELETED_SUCCESS),
+      response
+    );
   } catch (error) {
-    console.log(error);
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
   }
 };
 
@@ -311,7 +320,7 @@ const getTodayNotCountedUsers = async (request, response) => {
 
 const getMonthlyCounts = async (request, response) => {
   try {
-    const {location} = request.query;
+    const { location } = request.query;
     const today = new Date();
     const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const lastMonthEndDate = new Date(
