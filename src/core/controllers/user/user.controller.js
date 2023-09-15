@@ -5,11 +5,9 @@ import {
   sendResponse,
   messageResponse,
   globalCatch,
-  sendMail,
-  successSignUpText,
-  htmlBody,
 } from "../../utils/index.js";
 import axios from "axios";
+import SibApiV3Sdk from "sib-api-v3-sdk";
 
 const getAllUsers = async (request, response) => {
   try {
@@ -217,7 +215,21 @@ const getNotJoinedUsers = async (request, response) => {
 const inviteUser = async (request, response) => {
   try {
     const { email } = request.body;
-    console.log("here in inviteUser", email);
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    const apiKey = defaultClient.authentications["api-key"];
+    apiKey.apiKey = config.EMAIL_API_KEY;
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+    sendSmtpEmail.sender = {
+      email: config.SENDER_EMAIL,
+      name: "55Feast",
+    };
+    sendSmtpEmail.subject = "Invitation to onboard 55Feast";
+    sendSmtpEmail.replyTo = {
+      email: config.SENDER_EMAIL,
+      name: "55Feast",
+    };
     const options = {
       method: "GET",
       url: `${config.USER_POOL_URL}?email=${email}`,
@@ -227,16 +239,12 @@ const inviteUser = async (request, response) => {
       },
     };
     const foundUser = await axios.request(options);
-    console.log("here in inviteUser2");
     if (foundUser.status === 404) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
-    sendMail(
-      messageResponse.MAIL_SUBJECT,
-      successSignUpText(foundUser.data.fullName),
-      htmlBody("signUpSuccess"),
-      email
-    );
+    sendSmtpEmail.to = [{ name: foundUser.data.data.fullName, email: email }];
+    sendSmtpEmail.templateId = 3;
+    const res = await apiInstance.sendTransacEmail(sendSmtpEmail);
     return sendResponse(
       onSuccess(200, messageResponse.INVITED_SUCCESS),
       response
