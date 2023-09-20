@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post("/me", mealController.bookYourMeal);
 router.post("/multiple", mealController.bookMultipleMeals);
+router.patch("/update", mealController.updateMealStatus);
 router.delete("/me/delete", mealController.cancelMeal);
 router.get("/me/counts", mealController.getCountsOfUser);
 router.post("/date/count", isAdmin(mealController.getAllCountOfDate));

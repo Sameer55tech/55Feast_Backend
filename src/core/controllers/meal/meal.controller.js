@@ -4,42 +4,100 @@ import {
   sendResponse,
   messageResponse,
   globalCatch,
+  axiosRequest,
 } from "../../utils";
 import { mealModel, userModel } from "../../models";
-import config from "../../../../config";
-import axios from "axios";
+import { RequestMethod } from "../../utils/axios";
 
+//Done
+const mealBookFucntion = async (email, date, bookedBy) => {
+  try {
+    let meal = await mealModel.mealModel.findOne({ email: email });
+    const bookedByUser = await userModel.findOne({ email: bookedBy });
+    if (!meal) {
+      meal = new mealModel.mealModel({
+        email,
+        bookedDates: [
+          {
+            date: date,
+            bookedBy: `${bookedByUser.firstName} ${bookedByUser.lastName}`,
+          },
+        ],
+      });
+    } else {
+      if (meal.bookedDates.some((ele) => ele.date === date)) {
+        return { message: messageResponse.MEAL_ALREADY_BOOKED };
+      }
+      const currentMonth = new Date(date).getMonth() + 1;
+      const firstDateMonth = new Date(meal.bookedDates[0].date).getMonth() + 1;
+      if (
+        currentMonth - firstDateMonth >= 2 ||
+        currentMonth - firstDateMonth == -10
+      ) {
+        meal.bookedDates = meal.bookedDates.filter((element) => {
+          const currDate = new Date(element.date);
+          const currMonth = currDate.getMonth() + 1;
+          return currMonth != firstDateMonth;
+        });
+      }
+      meal.bookedDates.push({
+        date: date,
+        mealTaken: false,
+        bookedBy: `${bookedByUser.firstName} ${bookedByUser.lastName}`,
+      });
+    }
+    await meal.save();
+    return meal;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+//Done
 const bookYourMeal = async (request, response) => {
   try {
-    const { email, date } = request.body;
-    let meal = await mealModel.mealModel.findOne({ email });
-    if (!meal) {
-      console.log("here");
-      meal = new mealModel.mealModel({ email, bookedDates: [date] });
-    } else {
-      if (meal.bookedDates.includes(date)) {
+    const { email, date, bookedBy } = request.body;
+    if (!email || !date || !bookedBy) {
+      return sendResponse(onError(400, messageResponse.BAD_REQUEST), response);
+    }
+    const meal = await mealBookFucntion(email, date, bookedBy);
+    if (meal?.message === messageResponse.MEAL_ALREADY_BOOKED) {
+      return sendResponse(
+        onError(409, messageResponse.MEAL_ALREADY_BOOKED),
+        response
+      );
+    }
+    return sendResponse(
+      onSuccess(201, messageResponse.MEAL_BOOKED, meal),
+      response
+    );
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
+};
+
+//Done
+const bookMultipleMeals = async (request, response) => {
+  try {
+    const { email, dates, bookedBy } = request.body;
+    const data = dates.map(async (date) => {
+      const meal = await mealBookFucntion(email, date, bookedBy);
+      if (meal?.message === messageResponse.MEAL_ALREADY_BOOKED) {
         return sendResponse(
           onError(409, messageResponse.MEAL_ALREADY_BOOKED),
           response
         );
       }
-      const currentMonth = new Date(date).getMonth() + 1;
-      const firstDateMonth = new Date(meal.bookedDates[0]).getMonth() + 1;
-      if (
-        currentMonth - firstDateMonth >= 2 ||
-        currentMonth - firstDateMonth == -10
-      ) {
-        meal.bookedDates = meal.bookedDates.filter((date) => {
-          const currDate = new Date(date);
-          const currMonth = currDate.getMonth() + 1;
-          return currMonth != firstDateMonth;
-        });
-      }
-      meal.bookedDates.push(date);
-    }
-    await meal.save();
+      return meal;
+    });
+    const bookedArray = await Promise.all(await data);
+    const mealResult = await mealModel.mealModel.findOne({ email });
     return sendResponse(
-      onSuccess(201, messageResponse.MEAL_BOOKED, meal),
+      onSuccess(201, messageResponse.MEAL_BOOKED, mealResult),
       response
     );
   } catch (error) {
@@ -51,49 +109,7 @@ const bookYourMeal = async (request, response) => {
   }
 };
 
-const bookMultipleMeals = async (request, response) => {
-  try {
-    const { email, bookedDates } = request.body;
-    let meal = await mealModel.mealModel.findOne({ email });
-    if (!meal) {
-      meal = new mealModel.mealModel({ email, bookedDates });
-    } else {
-      for (const date of bookedDates) {
-        if (meal.bookedDates.includes(date)) {
-          return sendResponse(
-            onError(409, messageResponse.MEAL_ALREADY_BOOKED),
-            response
-          );
-        }
-      }
-      const currentMonth = new Date(bookedDates[0]).getMonth() + 1;
-      const firstDateMonth = new Date(meal.bookedDates[0]).getMonth() + 1;
-      if (
-        currentMonth - firstDateMonth >= 2 ||
-        currentMonth - firstDateMonth == -10
-      ) {
-        meal.bookedDates = meal.bookedDates.filter((date) => {
-          const currDate = new Date(date);
-          const currMonth = currDate.getMonth() + 1;
-          return currMonth != firstDateMonth;
-        });
-      }
-      meal.bookedDates = meal.bookedDates.concat(bookedDates);
-    }
-    await meal.save();
-    return sendResponse(
-      onSuccess(201, messageResponse.MEAL_BOOKED, meal),
-      response
-    );
-  } catch (error) {
-    globalCatch(request, error);
-    return sendResponse(
-      onError(500, messageResponse.ERROR_FETCHING_DATA),
-      response
-    );
-  }
-};
-
+//Done
 const cancelMeal = async (request, response) => {
   try {
     const { email, date } = request.body;
@@ -108,8 +124,10 @@ const cancelMeal = async (request, response) => {
         response
       );
     }
-    if (mealFound.bookedDates.includes(date)) {
-      const index = mealFound.bookedDates.indexOf(date);
+    if (mealFound.bookedDates.some((ele) => ele.date === date)) {
+      const index = mealFound.bookedDates.findIndex(
+        (item) => item.date === date
+      );
       mealFound.bookedDates.splice(index, 1);
       await mealFound.save();
       return sendResponse(
@@ -130,6 +148,42 @@ const cancelMeal = async (request, response) => {
   }
 };
 
+//Done
+const updateMealStatus = async (request, response) => {
+  try {
+    const { email, date } = request.body;
+    const updatedMeal = await mealModel.mealModel.findOneAndUpdate(
+      {
+        email: email,
+        "bookedDates.date": date,
+      },
+      {
+        $set: {
+          "bookedDates.$.mealTaken": true,
+        },
+      },
+      { new: true }
+    );
+    if (!updatedMeal) {
+      return sendResponse(
+        onError(404, messageResponse.MEAL_NOT_BOOKED),
+        response
+      );
+    }
+    return sendResponse(
+      onSuccess(200, messageResponse.MEAL_UPDATED, updatedMeal),
+      response
+    );
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
+};
+
+//Done
 const getCountsOfUser = async (request, response) => {
   try {
     const { email } = request.query;
@@ -158,22 +212,19 @@ const getCountsOfUser = async (request, response) => {
   }
 };
 
+//Done
 const getAllCountOfDate = async (request, response) => {
   try {
     const { date } = request.body;
     const { location } = request.query;
     const foundUsers = await mealModel.mealModel.find({
-      bookedDates: { $in: [date] },
+      bookedDates: { $elemMatch: { date: date } },
     });
     const users = foundUsers.map(async (element) => {
-      const options = {
-        method: "GET",
-        url: `${config.USER_POOL_URL}?email=${element.email}`,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-      const foundUser = await axios.request(options);
+      const foundUser = await axiosRequest(
+        RequestMethod.GET,
+        `?email=${element.email}`
+      );
       return {
         fullName: foundUser.data.data.fullName,
         email: element.email,
@@ -195,6 +246,7 @@ const getAllCountOfDate = async (request, response) => {
   }
 };
 
+//Done
 const getLastFiveCounts = async (request, response) => {
   try {
     const { location } = request.query;
@@ -231,6 +283,7 @@ const getLastFiveCounts = async (request, response) => {
   }
 };
 
+//Done
 const getDayByDate = (dateToBeUsed) => {
   const date = new Date(dateToBeUsed);
   const options = { weekday: "long" };
@@ -238,19 +291,16 @@ const getDayByDate = (dateToBeUsed) => {
   return dayName;
 };
 
+//Done
 const getCounts = async (date, location) => {
   const foundUsers = await mealModel.mealModel.find({
-    bookedDates: { $in: [date] },
+    bookedDates: { $elemMatch: { date: date } },
   });
   const users = foundUsers.map(async (element) => {
-    const options = {
-      method: "GET",
-      url: `${config.USER_POOL_URL}?email=${element.email}`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    const foundUser = await axios.request(options);
+    const foundUser = await axiosRequest(
+      RequestMethod.GET,
+      `?email=${element.email}`
+    );
     return { email: element.email, location: foundUser.data.data.location };
   });
   const result = await Promise.all(await users);
@@ -258,15 +308,18 @@ const getCounts = async (date, location) => {
   return count.length;
 };
 
+//Done
 const cancelAllMealsOfDate = async (request, response) => {
   try {
     const { date } = request.query;
     const foundUsers = await mealModel.mealModel.find({
-      bookedDates: { $in: [date] },
+      bookedDates: { $elemMatch: { date: date } },
     });
     foundUsers.map(async (element) => {
-      if (element.bookedDates.includes(date)) {
-        const index = element.bookedDates.indexOf(date);
+      if (element.bookedDates.some((ele) => ele.date === date)) {
+        const index = element.bookedDates.findIndex(
+          (item) => item.date === date
+        );
         element.bookedDates.splice(index, 1);
         await element.save();
       }
@@ -284,21 +337,20 @@ const cancelAllMealsOfDate = async (request, response) => {
   }
 };
 
+//Done
 const getTodayNotCountedUsers = async (request, response) => {
   try {
     const today = new Date();
     const day = new Date(today);
     const date = day.toISOString().split("T")[0];
     const foundUsers = await mealModel.mealModel.find({
-      bookedDates: { $nin: [date] },
+      "bookedDates.date": { $ne: date },
     });
     const users = foundUsers.map(async (element) => {
-      const options = {
-        method: "GET",
-        url: `${config.USER_POOL_URL}?email=${element.email}`,
-        headers: { "Content-Type": "application/json" },
-      };
-      const foundUser = await axios.request(options);
+      const foundUser = await axiosRequest(
+        RequestMethod.GET,
+        `?email=${element.email}`
+      );
       return { fullName: foundUser.data.data.fullName, email: element.email };
     });
     return sendResponse(
@@ -318,6 +370,7 @@ const getTodayNotCountedUsers = async (request, response) => {
   }
 };
 
+//Done
 const getMonthlyCounts = async (request, response) => {
   try {
     const { location } = request.query;
@@ -360,7 +413,13 @@ const getMonthlyCounts = async (request, response) => {
       ),
       response
     );
-  } catch (error) {}
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
 };
 
 export default {
@@ -373,4 +432,5 @@ export default {
   cancelAllMealsOfDate,
   getTodayNotCountedUsers,
   getMonthlyCounts,
+  updateMealStatus,
 };

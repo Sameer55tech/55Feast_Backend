@@ -4,7 +4,6 @@ import { isAdmin } from "../../utils";
 const router = express.Router();
 
 router.get("/all", isAdmin(userController.getAllUsers));
-router.get("/location/all", isAdmin(userController.getUserByLocation));
 router.get("/", isAdmin(userController.getUser));
 router.post("/all/joined", userController.getJoinedUsers);
 router.post("/insert", isAdmin(userController.insertUser));

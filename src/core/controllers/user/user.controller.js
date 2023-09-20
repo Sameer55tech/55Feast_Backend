@@ -1,19 +1,22 @@
 import config from "../../../../config";
+import { RequestMethod } from "../../utils/axios";
 import {
   onError,
   onSuccess,
   sendResponse,
   messageResponse,
   globalCatch,
+  axiosRequest,
 } from "../../utils/index.js";
-import axios from "axios";
 import SibApiV3Sdk from "sib-api-v3-sdk";
 
+//Done
 const getAllUsers = async (request, response) => {
   try {
     const { location } = request.query;
-    const users = await axios.get(
-      `${config.USER_POOL_URL}/all?location=${location}`
+    const users = await axiosRequest(
+      RequestMethod.GET,
+      `/all?location=${location}`
     );
     return sendResponse(
       onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users.data.data),
@@ -28,42 +31,16 @@ const getAllUsers = async (request, response) => {
   }
 };
 
-const getUserByLocation = async (request, response) => {
-  try {
-    const { location } = request.query;
-    const users = await axios.get(
-      config.USER_POOL_URL + `/location/all?location=${location}`
-    );
-    return sendResponse(
-      onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users.data),
-      response
-    );
-  } catch (error) {
-    globalCatch(request, error);
-    return sendResponse(
-      onError(500, messageResponse.ERROR_FETCHING_DATA),
-      response
-    );
-  }
-};
-
+//Done
 const getUser = async (request, response) => {
   try {
     const { email } = request.body;
-    const options = {
-      method: "GET",
-      url: `${config.USER_POOL_URL}?email=${email}`,
-      headers: { "Content-Type": "application/json" },
-      validateStatus: function (status) {
-        return (status >= 200 && status < 300) || status === 404;
-      },
-    };
-    const foundUser = await axios.request(options);
+    const foundUser = await axiosRequest(RequestMethod.GET, `?email=${email}`);
     if (foundUser.status === 404) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
     return sendResponse(
-      onSuccess(200, messageResponse.USER_FOUND, foundUser.data),
+      onSuccess(200, messageResponse.USER_FOUND, foundUser.data.data),
       response
     );
   } catch (error) {
@@ -75,17 +52,16 @@ const getUser = async (request, response) => {
   }
 };
 
+//Done
 const getJoinedUsers = async (request, response) => {
   try {
     const { location } = request.query;
     // exclude this email in user list
     const { email } = request.body;
-    const options = {
-      method: "GET",
-      url: `${config.USER_POOL_URL}/all/joined?location=${location}&email=${email}`,
-      headers: { "Content-Type": "application/json" },
-    };
-    const users = await axios.request(options);
+    const users = await axiosRequest(
+      RequestMethod.GET,
+      `/all/joined?location=${location}&email=${email}`
+    );
     return sendResponse(
       onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users.data.data),
       response
@@ -99,23 +75,15 @@ const getJoinedUsers = async (request, response) => {
   }
 };
 
+//Done
 const insertUser = async (request, response) => {
   try {
     const { email, fullName, location } = request.body;
-    const options = {
-      method: "POST",
-      url: `${config.USER_POOL_URL}/insert`,
-      headers: { "Content-Type": "application/json" },
-      data: {
-        fullName,
-        email,
-        location,
-      },
-      validateStatus: function (status) {
-        return (status >= 200 && status < 300) || status === 409;
-      },
-    };
-    const user = await axios.request(options);
+    const user = await axiosRequest(RequestMethod.POST, "/insert", {
+      fullName,
+      email,
+      location,
+    });
     if (user.status === 409) {
       return sendResponse(onError(409, messageResponse.EMAIL_EXIST), response);
     }
@@ -132,19 +100,15 @@ const insertUser = async (request, response) => {
   }
 };
 
+//Done
 const updateUserPool = async (request, response) => {
   try {
     const { email, fullName, location } = request.body;
-    const options = {
-      method: "PATCH",
-      url: `${config.USER_POOL_URL}/update`,
-      headers: { "Content-Type": "application/json" },
-      data: { email, location, fullName },
-      validateStatus: function (status) {
-        return (status >= 200 && status < 300) || status === 404;
-      },
-    };
-    const user = await axios.request(options);
+    const user = await axiosRequest(RequestMethod.PATCH, "/update", {
+      email,
+      location,
+      fullName,
+    });
     if (user.status === 404) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
@@ -161,18 +125,14 @@ const updateUserPool = async (request, response) => {
   }
 };
 
+//Done
 const deleteUser = async (request, response) => {
   try {
     const { email } = request.query;
-    const options = {
-      method: "DELETE",
-      url: `${config.USER_POOL_URL}/delete?email=${email}`,
-      headers: { "Content-Type": "application/json" },
-      validateStatus: function (status) {
-        return (status >= 200 && status < 300) || status === 404;
-      },
-    };
-    const user = await axios.request(options);
+    const user = await axiosRequest(
+      RequestMethod.DELETE,
+      `/delete?email=${email}`
+    );
     if (user.status === 404) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
@@ -189,16 +149,15 @@ const deleteUser = async (request, response) => {
   }
 };
 
+//Done
 const getNotJoinedUsers = async (request, response) => {
   try {
     const { location } = request.query;
     const { email } = request.body;
-    const options = {
-      method: "GET",
-      url: `${config.USER_POOL_URL}/all/invite?location=${location}&email=${email}`,
-      headers: { "Content-Type": "application/json" },
-    };
-    const users = await axios.request(options);
+    const users = await axiosRequest(
+      RequestMethod.GET,
+      `/all/invite?location=${location}&email=${email}`
+    );
     return sendResponse(
       onSuccess(200, messageResponse.USER_FOUND, users.data.data),
       response
@@ -212,6 +171,7 @@ const getNotJoinedUsers = async (request, response) => {
   }
 };
 
+//Done
 const inviteUser = async (request, response) => {
   try {
     const { email } = request.body;
@@ -220,7 +180,6 @@ const inviteUser = async (request, response) => {
     apiKey.apiKey = config.EMAIL_API_KEY;
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-
     sendSmtpEmail.sender = {
       email: config.SENDER_EMAIL,
       name: "55Feast",
@@ -230,15 +189,7 @@ const inviteUser = async (request, response) => {
       email: config.SENDER_EMAIL,
       name: "55Feast",
     };
-    const options = {
-      method: "GET",
-      url: `${config.USER_POOL_URL}?email=${email}`,
-      headers: { "Content-Type": "application/json" },
-      validateStatus: function (status) {
-        return (status >= 200 && status < 300) || status === 404;
-      },
-    };
-    const foundUser = await axios.request(options);
+    const foundUser = await axiosRequest(RequestMethod.GET, `?email=${email}`);
     if (foundUser.status === 404) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
@@ -260,7 +211,6 @@ const inviteUser = async (request, response) => {
 
 export default {
   getAllUsers,
-  getUserByLocation,
   getUser,
   getJoinedUsers,
   insertUser,

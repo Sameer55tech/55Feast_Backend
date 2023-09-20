@@ -9,8 +9,6 @@ mongoose
   })
   .then(() => {
     console.log("Connected to MongoDB");
-    // startCronJob();
-    // console.log("cron job started");
   })
   .catch((error) => {
     console.log("Failed to connect to DB", error.message);

@@ -29,6 +29,8 @@ const MENU_ITEM_DELETED_SUCCESS =
 const MENU_FETCHED = "Menu items fetched successfully";
 const INCORRECT_DATE = "Invalid date entered";
 const COUNTS_DELETED_SUCCESS = "All counts cancelled successfully";
+const BAD_REQUEST = "email, date & bookedBy, all are required";
+const MEAL_UPDATED = "Updated mealTaken to true";
 
 export default {
   EMAIL_EXIST,
@@ -60,5 +62,7 @@ export default {
   MENU_ITEM_DELETED_SUCCESS,
   MENU_FETCHED,
   INCORRECT_DATE,
-  COUNTS_DELETED_SUCCESS
+  COUNTS_DELETED_SUCCESS,
+  BAD_REQUEST,
+  MEAL_UPDATED,
 };

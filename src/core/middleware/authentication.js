@@ -8,8 +8,13 @@ const middleware = (app) => {
       return sendResponse(onError(403, messageResponse.TOKEN_ERROR), response);
     } else {
       const verified = jwt.jwtVerify(token, config.SECRET);
-      if (verified){
+      if (verified) {
         next();
+      } else {
+        return sendResponse(
+          onError(403, messageResponse.TOKEN_EXPIRED),
+          response
+        );
       }
     }
   });

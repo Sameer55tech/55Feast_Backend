@@ -14,7 +14,6 @@ const jwtVerify = (token, secret) => {
     let result;
     jwt.verify(token, secret, (error, data) => {
       if (error) {
-        console.log(messageResponse.TOKEN_EXPIRED);
         return;
       }
       result = data;
