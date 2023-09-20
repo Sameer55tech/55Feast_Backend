@@ -31,6 +31,7 @@ const INCORRECT_DATE = "Invalid date entered";
 const COUNTS_DELETED_SUCCESS = "All counts cancelled successfully";
 const BAD_REQUEST = "email, date & bookedBy, all are required";
 const MEAL_UPDATED = "Updated mealTaken to true";
+const NOTIFIED_MISSED_COUNT = "Notified missed count";
 
 export default {
   EMAIL_EXIST,
@@ -65,4 +66,5 @@ export default {
   COUNTS_DELETED_SUCCESS,
   BAD_REQUEST,
   MEAL_UPDATED,
+  NOTIFIED_MISSED_COUNT,
 };

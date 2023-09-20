@@ -6,7 +6,7 @@ import {
   globalCatch,
   axiosRequest,
 } from "../../utils";
-import { mealModel, userModel } from "../../models";
+import { mealModel, missedCount, userModel } from "../../models";
 import { RequestMethod } from "../../utils/axios";
 
 //Done
@@ -152,6 +152,10 @@ const cancelMeal = async (request, response) => {
 const updateMealStatus = async (request, response) => {
   try {
     const { email, date } = request.body;
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return sendResponse(onError(400, messageResponse.INVALID_USER), response);
+    }
     const updatedMeal = await mealModel.mealModel.findOneAndUpdate(
       {
         email: email,
@@ -422,6 +426,40 @@ const getMonthlyCounts = async (request, response) => {
   }
 };
 
+//Done
+const handleMissedCount = async (request, response) => {
+  try {
+    const { date, email } = request.body;
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return sendResponse(onError(400, messageResponse.INVALID_USER), response);
+    }
+    let missedCountEntity = await missedCount.findOne({ date });
+    if (!missedCountEntity) {
+      missedCountEntity = new missedCount({
+        date,
+        users: [{ email, name: `${user.firstName} ${user.lastName}` }],
+      });
+    } else {
+      missedCountEntity.users.push({
+        email,
+        name: `${user.firstName} ${user.lastName}`,
+      });
+    }
+    await missedCountEntity.save();
+    return sendResponse(
+      onSuccess(200, messageResponse.NOTIFIED_MISSED_COUNT, missedCountEntity),
+      response
+    );
+  } catch (error) {
+    globalCatch(request, error);
+    return sendResponse(
+      onError(500, messageResponse.ERROR_FETCHING_DATA),
+      response
+    );
+  }
+};
+
 export default {
   bookYourMeal,
   bookMultipleMeals,
@@ -433,4 +471,5 @@ export default {
   getTodayNotCountedUsers,
   getMonthlyCounts,
   updateMealStatus,
+  handleMissedCount,
 };

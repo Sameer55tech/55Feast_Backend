@@ -17,5 +17,6 @@ router.get(
   isAdmin(mealController.getTodayNotCountedUsers)
 );
 router.delete("/cancel", isAdmin(mealController.cancelAllMealsOfDate));
+router.post('/count-missed', mealController.handleMissedCount);
 
 export default router;
