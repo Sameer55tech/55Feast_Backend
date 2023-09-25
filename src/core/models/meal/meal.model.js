@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { db1Connection } from "../../database/db.js";
 
 const mealSchema = new mongoose.Schema(
   {
@@ -28,6 +29,6 @@ const mealSchema = new mongoose.Schema(
   }
 );
 
-const mealModel = new mongoose.model("Meal", mealSchema);
+const mealModel = db1Connection.model("Meal", mealSchema);
 
 export default mealModel;

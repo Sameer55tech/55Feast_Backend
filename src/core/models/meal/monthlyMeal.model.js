@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { db1Connection } from "../../database/db.js";
 
 const monthlyMealSchema = new mongoose.Schema(
   {
@@ -20,6 +21,6 @@ const monthlyMealSchema = new mongoose.Schema(
   }
 );
 
-const monthlyMealModel = new mongoose.model("MonthlyMeal", monthlyMealSchema);
+const monthlyMealModel = db1Connection.model("MonthlyMeal", monthlyMealSchema);
 
 export default monthlyMealModel;

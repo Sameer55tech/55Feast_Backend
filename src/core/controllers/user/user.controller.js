@@ -1,25 +1,21 @@
 import config from "../../../../config";
-import { RequestMethod } from "../../utils/axios";
 import {
   onError,
   onSuccess,
   sendResponse,
   messageResponse,
   globalCatch,
-  axiosRequest,
 } from "../../utils/index.js";
 import SibApiV3Sdk from "sib-api-v3-sdk";
+import { userPoolModel } from "../../models";
 
 //Done
 const getAllUsers = async (request, response) => {
   try {
     const { location } = request.query;
-    const users = await axiosRequest(
-      RequestMethod.GET,
-      `/all?location=${location}`
-    );
+    const foundUsers = await userPoolModel.find({ location });
     return sendResponse(
-      onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users.data.data),
+      onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, foundUsers),
       response
     );
   } catch (error) {
@@ -35,12 +31,12 @@ const getAllUsers = async (request, response) => {
 const getUser = async (request, response) => {
   try {
     const { email } = request.body;
-    const foundUser = await axiosRequest(RequestMethod.GET, `?email=${email}`);
-    if (foundUser.status === 404) {
+    const foundUser = await userPoolModel.findOne({ email });
+    if (!foundUser) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
     return sendResponse(
-      onSuccess(200, messageResponse.USER_FOUND, foundUser.data.data),
+      onSuccess(200, messageResponse.USER_FOUND, foundUser),
       response
     );
   } catch (error) {
@@ -58,12 +54,13 @@ const getJoinedUsers = async (request, response) => {
     const { location } = request.query;
     // exclude this email in user list
     const { email } = request.body;
-    const users = await axiosRequest(
-      RequestMethod.GET,
-      `/all/joined?location=${location}&email=${email}`
-    );
+    const users = await userPoolModel.find({
+      location,
+      hasJoined: true,
+      email: { $ne: email },
+    });
     return sendResponse(
-      onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users.data.data),
+      onSuccess(200, messageResponse.USERS_FOUND_SUCCESS, users),
       response
     );
   } catch (error) {
@@ -79,16 +76,18 @@ const getJoinedUsers = async (request, response) => {
 const insertUser = async (request, response) => {
   try {
     const { email, fullName, location } = request.body;
-    const user = await axiosRequest(RequestMethod.POST, "/insert", {
+    const user = await userPoolModel.findOne({ email });
+    if (user) {
+      return sendResponse(onError(409, messageResponse.EMAIL_EXIST), response);
+    }
+    const newUser = new userPoolModel({
       fullName,
       email,
       location,
     });
-    if (user.status === 409) {
-      return sendResponse(onError(409, messageResponse.EMAIL_EXIST), response);
-    }
+    await newUser.save();
     return sendResponse(
-      onSuccess(201, messageResponse.CREATED_SUCCESS, user.data.data),
+      onSuccess(201, messageResponse.CREATED_SUCCESS, newUser),
       response
     );
   } catch (error) {
@@ -104,18 +103,19 @@ const insertUser = async (request, response) => {
 const updateUserPool = async (request, response) => {
   try {
     const { email, fullName, location } = request.body;
-    const user = await axiosRequest(RequestMethod.PATCH, "/update", {
-      email,
-      location,
-      fullName,
-    });
-    if (user.status === 404) {
-      return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
-    }
-    return sendResponse(
-      onSuccess(200, messageResponse.USER_UPDATED_SUCCESS, user.data.data),
-      response
+    const user = await userPoolModel.findOneAndUpdate(
+      { email },
+      { fullName, location }
     );
+    if (user) {
+      await user.save();
+      const updatedUser = await userPoolModel.findOne({ email });
+      return sendResponse(
+        onSuccess(200, messageResponse.USER_UPDATED_SUCCESS, updatedUser),
+        response
+      );
+    }
+    return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
   } catch (error) {
     globalCatch(request, error);
     return sendResponse(
@@ -129,13 +129,13 @@ const updateUserPool = async (request, response) => {
 const deleteUser = async (request, response) => {
   try {
     const { email } = request.query;
-    const user = await axiosRequest(
-      RequestMethod.DELETE,
-      `/delete?email=${email}`
-    );
-    if (user.status === 404) {
+    const user = await userPoolModel.findOne({ email });
+    updateUserPool;
+    if (!user) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
+    await userPoolModel.deleteOne({ email });
+
     return sendResponse(
       onSuccess(200, messageResponse.USER_DELETED_SUCCESS),
       response
@@ -154,12 +154,13 @@ const getNotJoinedUsers = async (request, response) => {
   try {
     const { location } = request.query;
     const { email } = request.body;
-    const users = await axiosRequest(
-      RequestMethod.GET,
-      `/all/invite?location=${location}&email=${email}`
-    );
+    const users = await userPoolModel.find({
+      location,
+      hasJoined: false,
+      email: { $ne: email },
+    });
     return sendResponse(
-      onSuccess(200, messageResponse.USER_FOUND, users.data.data),
+      onSuccess(200, messageResponse.USER_FOUND, users),
       response
     );
   } catch (error) {
@@ -189,11 +190,11 @@ const inviteUser = async (request, response) => {
       email: config.SENDER_EMAIL,
       name: "55Feast",
     };
-    const foundUser = await axiosRequest(RequestMethod.GET, `?email=${email}`);
-    if (foundUser.status === 404) {
+    const foundUser = await userPoolModel.findOne({ email });
+    if (!foundUser) {
       return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
-    sendSmtpEmail.to = [{ name: foundUser.data.data.fullName, email: email }];
+    sendSmtpEmail.to = [{ name: foundUser.fullName, email: email }];
     sendSmtpEmail.templateId = 3;
     const res = await apiInstance.sendTransacEmail(sendSmtpEmail);
     return sendResponse(

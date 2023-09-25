@@ -4,10 +4,8 @@ import {
   sendResponse,
   messageResponse,
   globalCatch,
-  axiosRequest,
 } from "../../utils";
-import { mealModel, missedCount, userModel } from "../../models";
-import { RequestMethod } from "../../utils/axios";
+import { mealModel, missedCount, userModel, userPoolModel } from "../../models";
 
 //Done
 const mealBookFucntion = async (email, date, bookedBy) => {
@@ -225,14 +223,11 @@ const getAllCountOfDate = async (request, response) => {
       bookedDates: { $elemMatch: { date: date } },
     });
     const users = foundUsers.map(async (element) => {
-      const foundUser = await axiosRequest(
-        RequestMethod.GET,
-        `?email=${element.email}`
-      );
+      const foundUser = await userPoolModel.findOne({ email: element.email });
       return {
-        fullName: foundUser.data.data.fullName,
+        fullName: foundUser.fullName,
         email: element.email,
-        location: foundUser.data.data.location,
+        location: foundUser.location,
       };
     });
     const result = await Promise.all(await users);
@@ -301,11 +296,8 @@ const getCounts = async (date, location) => {
     bookedDates: { $elemMatch: { date: date } },
   });
   const users = foundUsers.map(async (element) => {
-    const foundUser = await axiosRequest(
-      RequestMethod.GET,
-      `?email=${element.email}`
-    );
-    return { email: element.email, location: foundUser.data.data.location };
+    const foundUser = await userPoolModel.findOne({ email: element.email });
+    return { email: element.email, location: foundUser.location };
   });
   const result = await Promise.all(await users);
   const count = result.filter((user) => user.location === `${location}`);
@@ -351,11 +343,8 @@ const getTodayNotCountedUsers = async (request, response) => {
       "bookedDates.date": { $ne: date },
     });
     const users = foundUsers.map(async (element) => {
-      const foundUser = await axiosRequest(
-        RequestMethod.GET,
-        `?email=${element.email}`
-      );
-      return { fullName: foundUser.data.data.fullName, email: element.email };
+      const foundUser = await userPoolModel.findOne({ email: element.email });
+      return { fullName: foundUser.fullName, email: element.email };
     });
     return sendResponse(
       onSuccess(

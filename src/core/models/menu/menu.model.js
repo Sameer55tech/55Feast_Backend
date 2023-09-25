@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { db1Connection } from "../../database/db.js";
 
 const menuSchema = new mongoose.Schema(
   {
@@ -16,6 +17,6 @@ const menuSchema = new mongoose.Schema(
   }
 );
 
-const menuModel = new mongoose.model("Menu", menuSchema);
+const menuModel = db1Connection.model("Menu", menuSchema);
 
 export default menuModel;

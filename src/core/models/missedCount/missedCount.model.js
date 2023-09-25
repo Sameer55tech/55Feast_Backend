@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { db1Connection } from "../../database/db.js";
 
 const missedCountSchema = new mongoose.Schema(
   {
@@ -23,6 +24,6 @@ const missedCountSchema = new mongoose.Schema(
   }
 );
 
-const missedCount = new mongoose.model("MissedCount", missedCountSchema);
+const missedCount = db1Connection.model("MissedCount", missedCountSchema);
 
 export default missedCount;

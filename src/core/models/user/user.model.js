@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { db1Connection } from "../../database/db.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -43,6 +44,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-const userModel = new mongoose.model("User", userSchema);
+const userModel = db1Connection.model("User", userSchema);
 
 export default userModel;

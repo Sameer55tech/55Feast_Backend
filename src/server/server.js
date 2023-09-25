@@ -1,5 +1,6 @@
 import express from "express";
-import db from "../core/database";
+import { db1Connection } from "../core/database/db.js";
+import { db2Connection } from "../core/database/db.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import morgan from "morgan";

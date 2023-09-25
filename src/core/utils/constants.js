@@ -32,6 +32,7 @@ const COUNTS_DELETED_SUCCESS = "All counts cancelled successfully";
 const BAD_REQUEST = "email, date & bookedBy, all are required";
 const MEAL_UPDATED = "Updated mealTaken to true";
 const NOTIFIED_MISSED_COUNT = "Notified missed count";
+const USER_UPDATED_SUCCESS = "User updated successfully";
 
 export default {
   EMAIL_EXIST,
@@ -67,4 +68,5 @@ export default {
   BAD_REQUEST,
   MEAL_UPDATED,
   NOTIFIED_MISSED_COUNT,
+  USER_UPDATED_SUCCESS,
 };

@@ -1,4 +1,4 @@
-import { userModel } from "../../models";
+import { userModel, userPoolModel } from "../../models";
 import bcrypt from "bcryptjs";
 import {
   onError,
@@ -7,8 +7,6 @@ import {
   messageResponse,
   globalCatch,
 } from "../../utils";
-import config from "../../../../config";
-import axios from "axios";
 
 const signupController = async (request, response) => {
   try {
@@ -22,24 +20,13 @@ const signupController = async (request, response) => {
       location,
       photo,
     } = request.body;
-    const options = {
-      method: "GET",
-      url: `${config.USER_POOL_URL}?email=${email}`,
-      headers: { "Content-Type": "application/json" },
-      validateStatus: function (status) {
-        return (status >= 200 && status < 300) || status === 404;
-      },
-    };
-    const verifyEmail = await axios.request(options);
-    if (verifyEmail.status === 404) {
-      return sendResponse(
-        onError(404, messageResponse.INVALID_EMAIL),
-        response
-      );
-    }
     const user = await userModel.findOne({ email });
     if (user) {
       return sendResponse(onError(409, messageResponse.EMAIL_EXIST), response);
+    }
+    const foundUser = await userPoolModel.findOne({ email });
+    if (!foundUser) {
+      return sendResponse(onError(404, messageResponse.NOT_EXIST), response);
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -54,13 +41,10 @@ const signupController = async (request, response) => {
       photo,
     });
     await newUser.save();
-    const new_options = {
-      method: "POST",
-      url: `${config.USER_POOL_URL}/joined/true`,
-      headers: { "Content-Type": "application/json" },
-      data: { email },
-    };
-    const userJoined = await axios.request(new_options);
+    const updateUserpool = await userPoolModel.findOneAndUpdate(
+      { email },
+      { hasJoined: true }
+    );
     return sendResponse(
       onSuccess(201, messageResponse.CREATED_SUCCESS, newUser),
       response
