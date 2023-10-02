@@ -139,7 +139,15 @@ const getCountsOfUser = async (request, response) => {
     }
     const mealFound = await mealModel.mealModel.findOne({ email: user.email });
     if (!mealFound) {
-      return sendResponse(onError(400, messageResponse.INVALID_USER), response);
+      const newEntity = new mealModel.mealModel({
+        email,
+        bookedDates: [],
+      });
+      await newEntity.save();
+      return sendResponse(
+        onSuccess(200, messageResponse.BOOK_YOUR_FIRST_MEAL, newEntity),
+        response
+      );
     }
     return sendResponse(
       onSuccess(
